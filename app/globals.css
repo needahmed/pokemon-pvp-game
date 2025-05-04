@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Pokemon GB";
+  src: url("/fonts/pokemon-gb.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --pokemon-red: #ff0000;
+  --pokemon-blue: #0000ff;
+  --pokemon-black: #000000;
+  --pokemon-white: #ffffff;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--pokemon-white);
+  color: var(--pokemon-black);
+  image-rendering: pixelated;
+}
+
+.font-pokemon {
+  font-family: "Pokemon GB", monospace;
+}
+
+.battle-background {
+  background-image: url("/backgrounds/battle-field.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.pokeball-background {
+  background-image: url("/backgrounds/pokeball-bg.png");
+  background-size: 100px;
+  background-repeat: repeat;
+}
+
+.health-bar {
+  transition: width 500ms ease-in-out;
+}
+
+.health-bar-high {
+  @apply bg-green-500;
+}
+
+.health-bar-medium {
+  @apply bg-yellow-500;
+}
+
+.health-bar-low {
+  @apply bg-red-500;
+}
+
+.pokemon-card {
+  @apply bg-white rounded-lg p-4 shadow-md transition-all duration-200 cursor-pointer hover:shadow-lg;
+}
+
+.pokemon-card.selected {
+  @apply ring-4 ring-blue-500;
+}
+
+.move-button {
+  @apply px-4 py-2 rounded-lg shadow-md transition-all duration-200 text-white font-pokemon text-sm;
+}
+
+.move-button:hover:not(:disabled) {
+  @apply shadow-lg transform scale-105;
+}
+
+.move-button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.move-normal {
+  @apply bg-gray-400;
+}
+.move-fire {
+  @apply bg-red-500;
+}
+.move-water {
+  @apply bg-blue-500;
+}
+.move-grass {
+  @apply bg-green-500;
+}
+.move-electric {
+  @apply bg-yellow-400;
+}
+.move-ice {
+  @apply bg-blue-200;
+}
+.move-fighting {
+  @apply bg-red-700;
+}
+.move-poison {
+  @apply bg-purple-500;
+}
+.move-ground {
+  @apply bg-yellow-600;
+}
+.move-flying {
+  @apply bg-blue-300;
+}
+.move-psychic {
+  @apply bg-pink-500;
+}
+.move-bug {
+  @apply bg-green-600;
+}
+.move-rock {
+  @apply bg-yellow-800;
+}
+.move-ghost {
+  @apply bg-purple-700;
+}
+.move-dragon {
+  @apply bg-indigo-600;
+}
+.move-dark {
+  @apply bg-gray-800;
+}
+.move-steel {
+  @apply bg-gray-500;
+}
+.move-fairy {
+  @apply bg-pink-300;
+}
+
+.pokemon-enter {
+  animation: slide-in 0.5s ease-out;
+}
+
+@keyframes slide-in {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.pokemon-exit {
+  animation: slide-out 0.5s ease-in;
+}
+
+@keyframes slide-out {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
