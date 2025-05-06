@@ -253,31 +253,57 @@ function LobbyContent() {
             </div>
             
             {/* Actions */}
-            <div className="p-6 border-t flex justify-center">
+            <div className="p-6 border-t flex flex-col items-center space-y-3">
               {players.length < 2 ? (
                 <div className="text-center">
-                  <p className="font-pokemon text-gray-600 mb-2">Waiting for another player to join...</p>
+                  <p className="font-pokemon text-gray-600 mb-2">Waiting for another player...</p>
                   <p className="text-sm text-gray-500">Share the Room ID with a friend!</p>
                 </div>
-              ) : isHost ? (
-                <button
-                  onClick={handleStartGame}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-pokemon py-3 px-6 rounded-lg shadow-md transition-colors duration-200"
-                  disabled={!allPlayersReady || players.length < 2}
-                >
-                  {allPlayersReady ? 'Start Game' : 'Waiting for opponent...'}
-                </button>
               ) : (
-                <button
-                  onClick={handleReadyUp}
-                  className={`${
-                    currentPlayerReady ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
-                  } text-white font-pokemon py-3 px-6 rounded-lg shadow-md transition-colors duration-200`}
-                  disabled={currentPlayerReady}
-                >
-                  {currentPlayerReady ? 'Ready!' : 'Ready Up'}
-                </button>
+                <>
+                  {/* Ready Up Button - visible to current player if not ready */}
+                  {!currentPlayerReady && (
+                    <button
+                      onClick={handleReadyUp}
+                      className={`bg-blue-500 hover:bg-blue-600 text-white font-pokemon py-3 px-6 rounded-lg shadow-md transition-colors duration-200 w-full max-w-xs text-center`}
+                    >
+                      Ready Up
+                    </button>
+                  )}
+
+                  {/* Status message if current player is ready but waiting for others */}
+                  {currentPlayerReady && !allPlayersReady && (
+                    <p className="font-pokemon text-gray-700">
+                      You are Ready! Waiting for other player(s)...
+                    </p>
+                  )}
+                  
+                  {/* Start Game Button - visible to host if everyone is ready */}
+                  {isHost && allPlayersReady && players.length >= 2 && (
+                    <button
+                      onClick={handleStartGame}
+                      className={`bg-green-500 hover:bg-green-600 text-white font-pokemon py-3 px-6 rounded-lg shadow-md transition-colors duration-200 w-full max-w-xs text-center`}
+                    >
+                      Start Game
+                    </button>
+                  )}
+
+                  {/* Message for non-host if everyone is ready but waiting for host to start*/}
+                  {!isHost && allPlayersReady && players.length >= 2 && (
+                     <p className="font-pokemon text-green-600">
+                      All players ready! Waiting for host to start the game.
+                    </p>
+                  )}
+                </>
               )}
+              
+              {/* Leave Lobby Button */}
+              <button 
+                onClick={() => router.push("/")}
+                className="text-sm text-gray-500 hover:text-gray-700 pt-2"
+              >
+                Leave Lobby
+              </button>
             </div>
           </>
         )}
