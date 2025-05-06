@@ -189,24 +189,41 @@ export default function Battle() {
       // Update battle log based on the type of update
       switch (update.type) {
         case "moveUsed":
-          addToBattleLog(`${update.attacker} used ${update.move}!`)
-          
-          // Play move sound effect
-          if (update.move) {
-            playMoveSound(update.move)
+          addToBattleLog(`${update.attacker} used ${update.move}!`);
+          if (update.move) playMoveSound(update.move);
+          if (update.critical) addToBattleLog("A critical hit!");
+          if (update.effectiveness === "super effective") addToBattleLog("It's super effective!");
+          else if (update.effectiveness === "not very effective") addToBattleLog("It's not very effective...");
+          addToBattleLog(`It dealt ${update.damage} damage!`);
+
+          // Update the HP of the defender
+          if (update.defender && typeof update.defenderHp === 'number') {
+            console.log(`[BattleUpdate:moveUsed] Received HP update for ${update.defender} to ${update.defenderHp}`);
+            const defenderNameFromServer = update.defender; // Raw name from server
+
+            let pokemonUpdated = false;
+            // Check player1's active Pokemon
+            const p1Active = newState.player1.team[newState.player1.activePokemon];
+            if (p1Active && p1Active.name.toLowerCase() === defenderNameFromServer.toLowerCase()) {
+              console.log(`[BattleUpdate:moveUsed] Updating player1's ${p1Active.name} HP from ${p1Active.currentHp} to ${update.defenderHp}`);
+              p1Active.currentHp = update.defenderHp;
+              pokemonUpdated = true;
+            } else {
+              // Check player2's active Pokemon
+              const p2Active = newState.player2.team[newState.player2.activePokemon];
+              if (p2Active && p2Active.name.toLowerCase() === defenderNameFromServer.toLowerCase()) {
+                console.log(`[BattleUpdate:moveUsed] Updating player2's ${p2Active.name} HP from ${p2Active.currentHp} to ${update.defenderHp}`);
+                p2Active.currentHp = update.defenderHp;
+                pokemonUpdated = true;
+              }
+            }
+
+            if (!pokemonUpdated) {
+              console.warn(`[BattleUpdate:moveUsed] Defender ${defenderNameFromServer} (from server) not found among active Pokémon or name mismatch. Active P1: ${p1Active?.name}, Active P2: ${p2Active?.name}. Full state:`, JSON.parse(JSON.stringify(newState)));
+            }
+          } else {
+            console.warn("[BattleUpdate:moveUsed] Missing defender name or HP in update:", update);
           }
-          
-          if (update.critical) {
-            addToBattleLog("A critical hit!")
-          }
-          
-          if (update.effectiveness === "super effective") {
-            addToBattleLog("It's super effective!")
-          } else if (update.effectiveness === "not very effective") {
-            addToBattleLog("It's not very effective...")
-          }
-          
-          addToBattleLog(`It dealt ${update.damage} damage!`)
           break
           
         case "moveMissed":
