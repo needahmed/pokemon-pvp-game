@@ -184,9 +184,10 @@ export default function Battle() {
 
     // Handle battle update events
     socket.on("battleUpdate", (update: BattleUpdate) => {
-      console.log("Battle update received:", update)
+      console.log("[BattlePage] Battle update received:", JSON.parse(JSON.stringify(update))); // Log a clean copy
       
       // Update battle log based on the type of update
+      // This part should happen OUTSIDE setBattleState, as it just logs and plays sounds.
       switch (update.type) {
         case "moveUsed":
           addToBattleLog(`${update.attacker} used ${update.move}!`);
@@ -194,187 +195,187 @@ export default function Battle() {
           if (update.critical) addToBattleLog("A critical hit!");
           if (update.effectiveness === "super effective") addToBattleLog("It's super effective!");
           else if (update.effectiveness === "not very effective") addToBattleLog("It's not very effective...");
-          addToBattleLog(`It dealt ${update.damage} damage!`);
-
-          // Update the HP of the defender
-          if (update.defender && typeof update.defenderHp === 'number') {
-            console.log(`[BattleUpdate:moveUsed] Received HP update for ${update.defender} to ${update.defenderHp}`);
-            const defenderNameFromServer = update.defender; // Raw name from server
-
-            let pokemonUpdated = false;
-            // Check player1's active Pokemon
-            const p1Active = newState.player1.team[newState.player1.activePokemon];
-            if (p1Active && p1Active.name.toLowerCase() === defenderNameFromServer.toLowerCase()) {
-              console.log(`[BattleUpdate:moveUsed] Updating player1's ${p1Active.name} HP from ${p1Active.currentHp} to ${update.defenderHp}`);
-              p1Active.currentHp = update.defenderHp;
-              pokemonUpdated = true;
-            } else {
-              // Check player2's active Pokemon
-              const p2Active = newState.player2.team[newState.player2.activePokemon];
-              if (p2Active && p2Active.name.toLowerCase() === defenderNameFromServer.toLowerCase()) {
-                console.log(`[BattleUpdate:moveUsed] Updating player2's ${p2Active.name} HP from ${p2Active.currentHp} to ${update.defenderHp}`);
-                p2Active.currentHp = update.defenderHp;
-                pokemonUpdated = true;
-              }
-            }
-
-            if (!pokemonUpdated) {
-              console.warn(`[BattleUpdate:moveUsed] Defender ${defenderNameFromServer} (from server) not found among active Pokémon or name mismatch. Active P1: ${p1Active?.name}, Active P2: ${p2Active?.name}. Full state:`, JSON.parse(JSON.stringify(newState)));
-            }
-          } else {
-            console.warn("[BattleUpdate:moveUsed] Missing defender name or HP in update:", update);
-          }
-          break
-          
+          if (typeof update.damage === 'number') addToBattleLog(`It dealt ${update.damage} damage!`);
+          break;
         case "moveMissed":
-          addToBattleLog(`${update.attacker} used ${update.move}!`)
-          addToBattleLog("But it missed!")
-          break
-          
+          addToBattleLog(`${update.attacker} used ${update.move}!`);
+          addToBattleLog("But it missed!");
+          break;
         case "pokemonFainted":
-          addToBattleLog(`${update.pokemon} fainted!`)
-          // Immediately prompt to choose a new Pokémon when your Pokémon faints
-          if (battleState) {
-            // Determine if the fainted Pokémon belongs to the current player
-            const myPlayer = isPlayer1 ? battleState.player1 : battleState.player2;
+          addToBattleLog(`${update.pokemon} fainted!`);
+          if (battleState && update.pokemon) {
+            const myPlayer = (battleState.player1.id === playerId) ? battleState.player1 : battleState.player2;
             const myActivePokemon = myPlayer.team[myPlayer.activePokemon];
-            
             if (myActivePokemon && formatPokemonName(myActivePokemon.name) === update.pokemon) {
-              // It's my Pokémon that fainted
-              addToBattleLog("Choose a new Pokémon!")
+              addToBattleLog("Choose a new Pokémon!");
             }
           }
-          break
-          
+          break;
         case "pokemonSwitched":
-          addToBattleLog(`${update.oldPokemon} was called back!`)
-          addToBattleLog(`${update.newPokemon} was sent out!`)
-          break
-          
-        case "turnChange":
-          // Update turn state
-          setIsMyTurn(update.currentTurn === playerId)
-          addToBattleLog(update.currentTurn === playerId ? "Your turn!" : "Opponent's turn!")
-          break
-          
-        case "forcedSwitch":
-          if (update.playerId === playerId) {
-            addToBattleLog("Choose a new Pokémon!")
-          } else {
-            addToBattleLog("Opponent is choosing a new Pokémon...")
+          if (update.oldPokemon && update.newPokemon) {
+            addToBattleLog(`${update.oldPokemon} was called back!`);
+            addToBattleLog(`${update.newPokemon} was sent out!`);
           }
-          break
-          
+          break;
+        case "turnChange":
+          if (update.currentTurn) {
+            setIsMyTurn(update.currentTurn === playerId);
+            addToBattleLog(update.currentTurn === playerId ? "Your turn!" : "Opponent's turn!");
+            console.log(`[BattlePage] Turn changed to: ${update.currentTurn}. Is my turn: ${update.currentTurn === playerId}`);
+          }
+          break;
+        case "forcedSwitch":
+          if (update.playerId === playerId) addToBattleLog("Choose a new Pokémon!");
+          else addToBattleLog("Opponent is choosing a new Pokémon...");
+          break;
         case "invalidSwitch":
-          // Handle invalid switch errors
-          addToBattleLog(update.message || "Unable to switch Pokémon.")
-          break
+          addToBattleLog(update.message || "Unable to switch Pokémon.");
+          break;
+        case "message": // Generic message from server
+          if(update.message) addToBattleLog(update.message);
+          break;
       }
 
-      // Update battle state
+      // Now, update the actual battle state
       setBattleState(prev => {
-        if (!prev) return prev; // Should not happen if initialized
+        if (!prev) {
+          console.warn("[BattlePage] setBattleState called with null prev state. Update type:", update.type);
+          return prev; 
+        }
 
-        // Create a deep copy to modify
-        // Note: A proper deep copy function (like from lodash) is safer for complex objects
         const newState = JSON.parse(JSON.stringify(prev)); 
-
-        // Find which player is player1 and player2 based on the current playerId
-        // This assumes player1/player2 structure is consistent from the server
-        // A safer approach would be if the server always sent updates with explicit player IDs
-        const isPlayer1 = newState.player1.id === playerId;
-        const myPlayerKey = isPlayer1 ? 'player1' : 'player2';
-        const opponentPlayerKey = isPlayer1 ? 'player2' : 'player1';
 
         switch (update.type) {
           case "moveUsed":
-            // Update the HP of the defender
-            if (update.defenderHp !== undefined) {
-              // Find the defender in the state (could be player1 or player2)
-              const defenderPlayer = newState[opponentPlayerKey]; // Assume the opponent was the defender
-              const activeOpponentPokemon = defenderPlayer.team[defenderPlayer.activePokemon];
-              
-              // Double-check if the defender name matches before updating HP
-              // (This adds robustness in case player/opponent mapping is wrong)
-              if (activeOpponentPokemon && formatPokemonName(activeOpponentPokemon.name) === update.defender) {
-                 activeOpponentPokemon.currentHp = update.defenderHp;
-              } else {
-                 // Maybe the attacker hit themselves (confusion)? Or state is desynced.
-                 // For simplicity, we'll assume opponent was hit.
-                 // A more complex implementation might search both teams.
-                 console.warn("Defender mismatch during HP update?", { expected: update.defender, found: activeOpponentPokemon?.name });
-                 activeOpponentPokemon.currentHp = update.defenderHp; 
+            if (update.attacker && update.defender && typeof update.defenderHp === 'number') {
+              console.log(`[BattlePage:setBattleState:moveUsed] Attacker: ${update.attacker}, Defender: ${update.defender}, HP: ${update.defenderHp}`);
+              const attackerNameLower = update.attacker.toLowerCase();
+              const defenderNameFromServerLower = update.defender.toLowerCase();
+              let hpUpdated = false;
+
+              // Determine which player is the defender based on the attacker
+              // The defender is the one whose active Pokemon's name matches defenderNameFromServer
+              // AND is NOT the attacker.
+
+              const p1Active = newState.player1.team[newState.player1.activePokemon];
+              const p2Active = newState.player2.team[newState.player2.activePokemon];
+
+              if (p1Active && p1Active.name.toLowerCase() === defenderNameFromServerLower) {
+                // Player1's active Pokemon matches the defender name from server
+                // Now, ensure this is not the attacker hitting themselves (unless it's confusion, which we aren't handling yet)
+                // For simplicity, we assume if P1's active is the defender name, and P2's active is the attacker, P1 is the true defender.
+                if (p2Active && p2Active.name.toLowerCase() === attackerNameLower) { // P2 attacked P1
+                    console.log(`  -> Updating P1 ${p1Active.name} HP: ${p1Active.currentHp} -> ${update.defenderHp}`);
+                    p1Active.currentHp = update.defenderHp;
+                    hpUpdated = true;
+                } else if (!p2Active || p2Active.name.toLowerCase() !== attackerNameLower) {
+                    // This case handles if P1 is the defender and P2 is not the attacker (e.g. P1 hit self, or log mismatch)
+                    // Or if P1 is attacker AND defender (self-hit/confusion)
+                    if (p1Active.name.toLowerCase() === attackerNameLower) { // P1 attacked P1 (self)
+                        console.log(`  -> SELF HIT: Updating P1 ${p1Active.name} HP: ${p1Active.currentHp} -> ${update.defenderHp}`);
+                        p1Active.currentHp = update.defenderHp;
+                        hpUpdated = true;
+                    } else {
+                         console.warn(`  -> Ambiguous: P1 (${p1Active.name}) matches defender, but P2 (${p2Active?.name}) is not attacker (${attackerNameLower}). Assuming P1 is defender.`);
+                         p1Active.currentHp = update.defenderHp; // Default to updating P1 if it matches defender name
+                         hpUpdated = true;
+                    }
+                }
+              } else if (p2Active && p2Active.name.toLowerCase() === defenderNameFromServerLower) {
+                // Player2's active Pokemon matches the defender name from server
+                if (p1Active && p1Active.name.toLowerCase() === attackerNameLower) { // P1 attacked P2
+                    console.log(`  -> Updating P2 ${p2Active.name} HP: ${p2Active.currentHp} -> ${update.defenderHp}`);
+                    p2Active.currentHp = update.defenderHp;
+                    hpUpdated = true;
+                } else if (!p1Active || p1Active.name.toLowerCase() !== attackerNameLower) {
+                     // This case handles if P2 is the defender and P1 is not the attacker
+                     // Or if P2 is attacker AND defender (self-hit/confusion)
+                    if (p2Active.name.toLowerCase() === attackerNameLower) { // P2 attacked P2 (self)
+                        console.log(`  -> SELF HIT: Updating P2 ${p2Active.name} HP: ${p2Active.currentHp} -> ${update.defenderHp}`);
+                        p2Active.currentHp = update.defenderHp;
+                        hpUpdated = true;
+                    } else {
+                        console.warn(`  -> Ambiguous: P2 (${p2Active.name}) matches defender, but P1 (${p1Active?.name}) is not attacker (${attackerNameLower}). Assuming P2 is defender.`);
+                        p2Active.currentHp = update.defenderHp; // Default to updating P2 if it matches defender name
+                        hpUpdated = true;
+                    }
+                }
               }
+              
+              if (!hpUpdated) {
+                console.warn(`  -> HP NOT UPDATED. Defender: ${update.defender}, Attacker: ${update.attacker}. Active P1: ${p1Active?.name}, Active P2: ${p2Active?.name}`);
+              }
+            } else {
+              console.warn("[BattlePage:setBattleState:moveUsed] Missing attacker, defender, or HP in update:", update);
+            }
+            break;
+
+          case "pokemonFainted":
+            if (update.pokemon && update.playerId) { // Expect playerId of the owner of the fainted pokemon
+              const faintedPokemonNameLower = update.pokemon.toLowerCase();
+              console.log(`[BattlePage:setBattleState:pokemonFainted] Processing fainted: ${update.pokemon} owned by ${update.playerId}`);
+              let faintedSet = false;
+
+              const ownerPlayerKey = newState.player1.id === update.playerId ? 'player1' : 'player2';
+              const ownerPlayer = newState[ownerPlayerKey];
+
+              if (ownerPlayer) {
+                const activePoke = ownerPlayer.team[ownerPlayer.activePokemon];
+                if (activePoke && activePoke.name.toLowerCase() === faintedPokemonNameLower) {
+                  if (activePoke.currentHp > 0) {
+                    console.log(`  -> Marking active ${activePoke.name} of player ${update.playerId} as fainted (HP 0).`);
+                    activePoke.currentHp = 0;
+                  }
+                  faintedSet = true;
+                } else {
+                  // Check benched Pokemon for the owner
+                  const teamIdx = ownerPlayer.team.findIndex((p: Pokemon) => p.name.toLowerCase() === faintedPokemonNameLower);
+                  if (teamIdx !== -1) {
+                    if (ownerPlayer.team[teamIdx].currentHp > 0) {
+                      console.log(`  -> Marking benched ${ownerPlayer.team[teamIdx].name} of player ${update.playerId} as fainted (HP 0).`);
+                      ownerPlayer.team[teamIdx].currentHp = 0;
+                    }
+                    faintedSet = true;
+                  }
+                }
+              } else {
+                console.error(`  -> Owner player ${update.playerId} not found in battle state!`);
+              }
+              
+              if(!faintedSet) console.warn(`  -> ${update.pokemon} (owner: ${update.playerId}) already marked with 0 HP or not found in owner's team.`);
+            } else {
+              console.warn("[BattlePage:setBattleState:pokemonFainted] Missing pokemon name or playerId in update:", update);
             }
             break;
 
           case "pokemonSwitched":
-            // Find which player switched
-            const switchingPlayerKey = newState.player1.id === update.playerId ? 'player1' : 'player2';
-            const switchingPlayer = newState[switchingPlayerKey];
-            const receivedPokemonName = update.newPokemon?.toLowerCase(); // Get raw name from update, ensure lowercase
-
-            if (!receivedPokemonName) {
-              console.error("Received pokemonSwitched event with missing newPokemon name:", update);
-              break;
-            }
-            
-            // Find the index of the new Pokemon in their team by comparing raw names
-            const newPokemonIndex = switchingPlayer.team.findIndex(
-              (p: Pokemon) => p.name?.toLowerCase() === receivedPokemonName
-            );
-
-            if (newPokemonIndex !== -1) {
-              console.log(`Switching player ${switchingPlayerKey} activePokemon to index ${newPokemonIndex} (${receivedPokemonName})`);
-              switchingPlayer.activePokemon = newPokemonIndex;
-            } else {
-              console.error(`Could not find switched-in Pokemon by name: ${receivedPokemonName} in team:`, switchingPlayer.team.map((p: Pokemon) => p.name));
-            }
-            break;
-            
-          case "pokemonFainted":
-            // Ensure the fainted Pokemon's HP is 0
-            // Find which player's pokemon fainted
-            const faintedPokemonNameRaw = update.pokemon?.toLowerCase(); // Use raw name
-            if (!faintedPokemonNameRaw) {
-              console.error("Received pokemonFainted event with missing pokemon name:", update);
-              break;
-            }
-            
-            let foundFainted = false;
-            [newState.player1, newState.player2].forEach(player => {
-              // Check the active Pokemon first
-              const activePokemon = player.team[player.activePokemon];
-              if (activePokemon && activePokemon.name?.toLowerCase() === faintedPokemonNameRaw) {
-                activePokemon.currentHp = 0;
-                foundFainted = true;
-                console.log(`Marked active ${activePokemon.name} of player ${player.id} as fainted.`);
+            if (update.playerId && update.newPokemon) {
+              console.log(`[BattlePage:setBattleState:pokemonSwitched] Processing switch for ${update.playerId} to ${update.newPokemon}`);
+              const playerKey = newState.player1.id === update.playerId ? 'player1' : 'player2';
+              const playerToUpdate = newState[playerKey];
+              const newPokemonNameLower = update.newPokemon.toLowerCase();
+              const newIdx = playerToUpdate.team.findIndex((p: Pokemon) => p.name.toLowerCase() === newPokemonNameLower);
+              if (newIdx !== -1) {
+                console.log(`  -> ${playerKey} active Pokemon index: ${playerToUpdate.activePokemon} -> ${newIdx}`);
+                playerToUpdate.activePokemon = newIdx;
               } else {
-                // Check the whole team if not the active one (less common but possible)
-                const faintedIndex = player.team.findIndex((p: Pokemon) => p.name?.toLowerCase() === faintedPokemonNameRaw);
-                if (faintedIndex !== -1) {
-                  player.team[faintedIndex].currentHp = 0;
-                  foundFainted = true;
-                  console.log(`Marked non-active ${player.team[faintedIndex].name} of player ${player.id} as fainted.`);
-                }
+                console.error(`  -> Could not find ${update.newPokemon} in ${playerKey}'s team.`);
               }
-            });
-            if (!foundFainted) {
-              console.warn("Could not find fainted pokemon to update HP:", faintedPokemonNameRaw);
+            } else {
+              console.warn("[BattlePage:setBattleState:pokemonSwitched] Missing playerId or newPokemon in update:", update);
             }
             break;
-             
+            
           case "turnChange":
-             // Update the overall currentTurn identifier if the server provides it
-             if (update.currentTurn) {
-                newState.currentTurn = update.currentTurn;
-             }
-             break;
+            if (update.currentTurn) {
+              console.log(`[BattlePage:setBattleState:turnChange] Updating currentTurn in state to: ${update.currentTurn}`);
+              newState.currentTurn = update.currentTurn;
+            }
+            break;
         }
-
         return newState;
       });
-    })
+    });
     
     // Handle battle end event
     socket.on("battleEnd", ({ winner: winnerId, loser }) => {

@@ -740,7 +740,8 @@ io.on('connection', (socket) => {
     if (defender.currentHp <= 0) {
       io.to(roomId).emit('battleUpdate', {
         type: 'pokemonFainted',
-        pokemon: defender.name
+        pokemon: defender.name,
+        playerId: defenderId
       });
       
       // Check if all Pokemon have fainted
