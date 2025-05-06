@@ -136,7 +136,13 @@ export default function TestPage() {
   // Initialize socket connection
   useEffect(() => {
     if (!socket) {
-      socket = io("http://localhost:4000");
+      console.log("Initializing socket for test page...");
+      const socketURL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000";
+      console.log(`Test Page Socket URL: ${socketURL}`);
+      socket = io(socketURL, {
+        reconnectionAttempts: 3,
+        timeout: 5000,
+      });
 
       socket.on("connect", () => {
         addLog(`Socket connected: ${socket?.id}`);

@@ -31,7 +31,9 @@ function LobbyContent() {
 
     if (!socket) {
       console.log("Initializing socket connection...");
-      socket = io("http://localhost:4000", {
+      const socketURL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000";
+      console.log(`Lobby Socket URL: ${socketURL}`);
+      socket = io(socketURL, {
         reconnectionAttempts: 5,
         timeout: 10000,
       });

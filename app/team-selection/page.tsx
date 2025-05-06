@@ -40,9 +40,14 @@ export default function TeamSelection() {
     
     // Initialize Socket.IO connection if not already connected
     if (!socket) {
-      console.log("%c Creating new socket connection", 'background: #00ff00; color: black; font-size: 16px');
-      socket = io("http://localhost:4000");
-    } else {
+      console.log("Initializing socket connection for team selection...");
+      const socketURL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000";
+      console.log(`Team Selection Socket URL: ${socketURL}`);
+      socket = io(socketURL, {
+        reconnectionAttempts: 5,
+        timeout: 10000,
+      });
+    } else if (!socket.connected) {
       console.log("%c Reusing existing socket connection", 'background: #00ff00; color: black; font-size: 16px');
     }
     

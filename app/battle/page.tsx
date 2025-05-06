@@ -52,12 +52,14 @@ export default function Battle() {
 
     // Create socket connection if needed
     if (!socket) {
-      console.log("Creating new socket connection");
-      socket = io("http://localhost:4000", {
+      console.log("Creating new socket connection for battle page...");
+      const socketURL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000";
+      console.log(`Battle Page Socket URL: ${socketURL}`);
+      socket = io(socketURL, {
         reconnectionAttempts: 10,
         reconnectionDelay: 1000,
         timeout: 10000,
-        transports: ['websocket', 'polling'] // Try websocket first, fall back to polling
+        transports: ['websocket', 'polling'] 
       });
       
       // Log connection events in detail
