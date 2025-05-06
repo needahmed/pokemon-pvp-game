@@ -31,9 +31,11 @@ const safePrismaOperation = async (operation, errorMessage) => {
 const app = express();
 const server = http.createServer(app);
 
+const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000'; // Fallback for local dev
+
 // CORS configuration
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: allowedOrigin,
   methods: ['GET', 'POST'],
   credentials: true
 }));
@@ -43,7 +45,7 @@ app.use(express.json());
 // Initialize Socket.IO with CORS
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: allowedOrigin,
     methods: ['GET', 'POST'],
     credentials: true
   }
