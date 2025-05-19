@@ -1,113 +1,106 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
+import Link from 'next/link';
+import Image from 'next/image';
 
-export default function Home() {
-  const router = useRouter()
-  const [roomId, setRoomId] = useState("")
-  const [playerId, setPlayerId] = useState("")
-  const [error, setError] = useState("")
-
-  const handleJoinRoom = () => {
-    if (!roomId.trim()) {
-      setError("Room ID is required.")
-      return
-    }
-
-    if (!playerId.trim()) {
-      setError("Player ID is required.")
-      return
-    }
-
-    // Go to lobby page instead of directly to team selection
-    router.push(`/lobby?roomId=${roomId}&playerId=${playerId}`)
-  }
-
-  const handleCreateRoom = () => {
-    if (!playerId.trim()) {
-      setError("Player ID is required.")
-      return
-    }
-
-    // Generate a random room ID (could be more sophisticated)
-    const newRoomId = Math.random().toString(36).substring(2, 8)
-    setRoomId(newRoomId)
-    
-    // Go to lobby page
-    router.push(`/lobby?roomId=${newRoomId}&playerId=${playerId}`)
-  }
-
+export default function LandingPage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-red-500 to-red-700">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-2xl overflow-hidden">
-        <div className="bg-red-600 p-6 text-center">
-          <h1 className="text-3xl text-white font-pokemon mb-2">Pokémon PvP</h1>
-          <p className="text-white text-opacity-80 text-sm">Battle your friends with your favorite Pokémon!</p>
+    <div className="min-h-screen flex flex-col bg-green-400">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+          <Link href="/" legacyBehavior>
+            <a>
+              <Image src="/logo.png" alt="Small Logo" width={120} height={40} />
+            </a>
+          </Link>
+          <nav className="space-x-4">
+            {["Home", "About", "Games", "Features", "Contact"].map((item) => (
+              <Link key={item} href="#" legacyBehavior>
+                <a className="text-gray-700 hover:text-red-500 font-medium">{item}</a>
+              </Link>
+            ))}
+          </nav>
         </div>
+      </header>
+
+      {/* Hero Section */}
+      <main className="flex-grow flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
+        {/* Placeholder for background elements (e.g., field, sky, characters) */}
+        {/* You might want to use a large background image here if you have one */}
+        <div className="absolute inset-0 bg-gradient-to-b from-green-500 to-blue-300 z-0 opacity-70"></div>
         
-        <div className="p-6">
-          {error && (
-            <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
-          
-          <div className="mb-4">
-            <label className="block text-gray-700 font-pokemon text-sm mb-2">
-              Player ID
-            </label>
-            <input
-              type="text"
-              value={playerId}
-              onChange={(e) => setPlayerId(e.target.value)}
-              placeholder="Enter your name"
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-          </div>
-          
-          <div className="mb-6">
-            <label className="block text-gray-700 font-pokemon text-sm mb-2">
-              Room ID
-            </label>
-            <div className="flex">
-              <input
-                type="text"
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
-                placeholder="Enter room code"
-                className="flex-1 px-3 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
-              <button
-                onClick={handleCreateRoom}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-r-lg font-pokemon text-sm"
-              >
-                Create
-              </button>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Enter an existing room ID or create a new one
-            </p>
-          </div>
-          
-          <button
-            onClick={handleJoinRoom}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-pokemon py-3 px-4 rounded-lg shadow-md transition-colors duration-200"
-          >
-            Join Battle
-          </button>
+        {/* Placeholder for Pikachu-like character */}
+        <div className="absolute left-10 bottom-10 z-10 opacity-80 animate-bounce">
+            {/* <Image src="/images/pikachu-placeholder.png" alt="Pikachu" width={200} height={200} /> */}
+            <p className="text-6xl">ϞϞ(๑⚈ ․̫ ⚈๑)∩</p> {/* ASCII Art Pikachu as placeholder */}
         </div>
-        
-        <div className="bg-gray-100 p-4 flex justify-between items-center">
-          <div className="flex space-x-2">
-            <div className="w-6 h-6 bg-red-500 rounded-full"></div>
-            <div className="w-6 h-6 bg-blue-500 rounded-full"></div>
-            <div className="w-6 h-6 bg-yellow-500 rounded-full"></div>
-          </div>
-          <p className="text-xs text-gray-600">Fan-made project, not affiliated with Pokémon.</p>
+
+        {/* Placeholder for Master Ball-like object */}
+        <div className="absolute right-10 bottom-10 z-10 opacity-80">
+            {/* <Image src="/images/masterball-placeholder.png" alt="Master Ball" width={150} height={150} /> */}
+            <div className="w-32 h-32 bg-purple-600 rounded-full border-4 border-black flex items-center justify-center">
+                <div className="w-16 h-16 bg-pink-400 rounded-full border-2 border-black flex items-center justify-center">
+                    <div className="w-6 h-6 bg-white rounded-full"></div>
+                </div>
+            </div>
         </div>
-      </div>
-    </main>
-  )
+
+        <div className="relative z-20 flex flex-col items-center">
+          <Image 
+            src="/logo.png" 
+            alt="Pokemon PVP Logo"
+            width={450} 
+            height={225}
+            className="mb-6 drop-shadow-2xl"
+            priority
+          />
+          <p className="text-xl text-white mb-10 max-w-xl [text-shadow:_1px_1px_2px_rgb(0_0_0_/_60%)] font-medium">
+            The ultimate Pokémon battle experience awaits! Join trainers, build your team, and fight your way to the top.
+          </p>
+          <Link href="/play" legacyBehavior>
+            <a className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold text-2xl py-4 px-16 rounded-lg shadow-xl transition-transform transform hover:scale-105 duration-300 ease-in-out font-pokemon tracking-wide border-2 border-yellow-700">
+              PLAY NOW
+            </a>
+          </Link>
+        </div>
+      </main>
+
+      {/* Secondary Section - "Preddmo all Part hriatsr tt" */}
+      <section className="py-16 bg-gray-100 text-center">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-gray-800 mb-4 font-pokemon">Explore Features</h2> {/* Changed placeholder text */}
+          <p className="text-gray-600 mb-10 max-w-2xl mx-auto">
+            Discover powerful Pokémon, customize your battle strategies, and connect with a vibrant community of trainers. More features coming soon!
+          </p>
+          <div className="flex justify-center space-x-6">
+            <button className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-3 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105 font-pokemon border-2 border-yellow-700">
+              More Info
+            </button>
+            <button className="bg-white hover:bg-gray-200 text-gray-800 font-semibold py-3 px-8 rounded-lg shadow-md border-2 border-gray-300 transition-transform transform hover:scale-105 font-pokemon">
+              Sign Up
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Tertiary Section - "Pio Neors Library" */}
+      <section className="py-12 bg-gray-800 text-center">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold text-white mb-3 font-pokemon">Developer Resources</h2> {/* Changed placeholder text */}
+          <p className="text-gray-400">Access our API, documentation, and community forums.</p>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-6 bg-gray-900 text-center text-gray-400 text-sm">
+        <p>Pokémon © Nintendo, Creatures Inc., GAME FREAK inc. This is a fan-created project for fun and learning.</p>
+        <div className="flex justify-center space-x-3 mt-3">
+            <Image src="/images/pokeball.jpg" alt="Pokeball" width={20} height={20} className="opacity-70 hover:opacity-100"/>
+            <Image src="/images/pokeball.jpg" alt="Pokeball" width={20} height={20} className="opacity-70 hover:opacity-100"/>
+            <Image src="/images/pokeball.jpg" alt="Pokeball" width={20} height={20} className="opacity-70 hover:opacity-100"/>
+        </div>
+      </footer>
+    </div>
+  );
 }
