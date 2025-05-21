@@ -984,22 +984,29 @@ export default function Battle() {
                 </div>
               </div>
 
-              <div className="pokemon-enter h-32">
-            <Image
+              <div className="pokemon-enter h-32 relative flex flex-col items-center">
+                <Image
+                  src="/disk.png"
+                  alt="Pokemon base disk"
+                  width={110}
+                  height={40}
+                  className="absolute bottom-0 opacity-75"
+                />
+                <Image
                   src={opponentPokemon.sprites?.front || `/placeholder.svg`}
-              alt={opponentPokemon.name}
-              width={128}
-              height={128}
-                  className="object-contain h-full w-auto"
+                  alt={opponentPokemon.name}
+                  width={128}
+                  height={128}
+                  className="object-contain h-full w-auto relative z-10"
                   unoptimized
                   onError={(e) => {
                     // @ts-ignore - TypeScript doesn't know about currentTarget.onerror
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = `/placeholder.svg`;
                   }}
-            />
-          </div>
-        </div>
+                />
+              </div>
+            </div>
           )}
 
           {/* Mobile Battle Log (only visible on mobile) */}
@@ -1014,21 +1021,28 @@ export default function Battle() {
         {/* Player's Pokémon */}
           {playerPokemon && (
         <div className="mt-auto flex flex-col-reverse md:flex-row items-end">
-              <div className="pokemon-enter h-32">
-            <Image
+              <div className="pokemon-enter h-32 relative flex flex-col items-center">
+                <Image
+                  src="/disk.png"
+                  alt="Pokemon base disk"
+                  width={110}
+                  height={40}
+                  className="absolute bottom-0 opacity-75"
+                />
+                <Image
                   src={playerPokemon.sprites?.back || `/placeholder.svg`}
-              alt={playerPokemon.name}
-              width={128}
-              height={128}
-                  className="object-contain h-full w-auto"
+                  alt={playerPokemon.name}
+                  width={128}
+                  height={128}
+                  className="object-contain h-full w-auto relative z-10"
                   unoptimized
                   onError={(e) => {
                     // @ts-ignore - TypeScript doesn't know about currentTarget.onerror
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = `/placeholder.svg`;
                   }}
-            />
-          </div>
+                />
+              </div>
 
           <div className="flex-1 flex flex-col items-end mb-4 md:mb-0">
                 <div className="bg-white border-4 border-gray-800 rounded-lg p-3 mb-2 min-w-64">

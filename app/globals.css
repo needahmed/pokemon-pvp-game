@@ -30,7 +30,7 @@ body {
 }
 
 .battle-background {
-  background-image: url("/backgrounds/battle-field.png");
+  background-image: url("/backgrounds/background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
