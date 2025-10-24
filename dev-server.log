@@ -1,0 +1,11 @@
+
+> my-v0-project@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://10.10.1.85:3000
+
+ ✓ Starting...
+ ✓ Ready in 1459ms
+[?25h

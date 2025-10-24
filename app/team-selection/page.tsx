@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import PokemonCard from "@/components/PokemonCard"
+import { PokemonCardSkeletonGrid } from "@/components/PokemonCardSkeleton"
+import LoadingSpinner from "@/components/LoadingSpinner"
+import SoundToggle from "@/components/SoundToggle"
 import type { Pokemon } from "@/lib/types"
 import { fetchAllPokemon, fetchPokemonDetails, formatPokemonName, fetchPokemonByNameOrId } from "@/lib/api"
 import io, { Socket } from "socket.io-client"
@@ -242,7 +245,7 @@ export default function TeamSelection() {
   }
 
   return (
-    <main className="min-h-screen p-4 bg-gray-100">
+    <main className="min-h-screen p-4 bg-gray-100 page-transition">
       <div className="max-w-7xl mx-auto">
         <div className="bg-red-600 p-4 rounded-lg mb-6 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-2xl text-white font-pokemon mb-4 md:mb-0">Select Your Team</h1>
@@ -414,11 +417,11 @@ export default function TeamSelection() {
         <div>
           <h2 className="font-pokemon text-lg mb-2">Search Results</h2>
           {isLoading ? (
-            <div className="flex justify-center p-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-red-600"></div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <PokemonCardSkeletonGrid count={10} />
             </div>
           ) : searchTerm && searchResults.length === 0 ? (
-            <div className="text-center p-8 bg-white rounded-lg">
+            <div className="text-center p-8 bg-white rounded-lg shadow-md">
               <p className="font-pokemon text-gray-600">No Pokémon found matching "{searchTerm}"</p>
               <p className="text-sm text-gray-500 mt-2">Try searching by name (e.g., "pikachu") or ID (e.g., "25")</p>
             </div>
@@ -441,6 +444,9 @@ export default function TeamSelection() {
       <footer className="mt-8 text-center text-xs text-gray-600 font-pokemon">
         Fan-made project, not affiliated with Pokémon.
       </footer>
+      
+      {/* Sound Toggle */}
+      <SoundToggle />
     </main>
   )
 }
