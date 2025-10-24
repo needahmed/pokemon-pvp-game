@@ -22,7 +22,8 @@ export function Navigation() {
           <div className="hidden md:flex items-center gap-8">
             <NavLink href="/" label="Home" />
             <NavLink href="/about" label="About" />
-            <NavLink href="/play" label="Play" />
+            <NavLink href="/features" label="Features" />
+            <NavLink href="/contact" label="Contact" />
             
             {/* CTA Button */}
             <Link 
@@ -51,7 +52,8 @@ export function Navigation() {
           <div className="container mx-auto px-4 py-4 space-y-4">
             <MobileNavLink href="/" label="Home" onClick={() => setMobileMenuOpen(false)} />
             <MobileNavLink href="/about" label="About" onClick={() => setMobileMenuOpen(false)} />
-            <MobileNavLink href="/play" label="Play" onClick={() => setMobileMenuOpen(false)} />
+            <MobileNavLink href="/features" label="Features" onClick={() => setMobileMenuOpen(false)} />
+            <MobileNavLink href="/contact" label="Contact" onClick={() => setMobileMenuOpen(false)} />
             <Link 
               href="/play"
               onClick={() => setMobileMenuOpen(false)}

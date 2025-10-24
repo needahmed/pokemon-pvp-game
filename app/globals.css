@@ -477,6 +477,16 @@ body {
   80% { transform: translate(2px, 2px); }
 }
 
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+@keyframes scan-line {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 /* ===== UTILITY CLASSES ===== */
 
 .glass-card {
@@ -570,6 +580,14 @@ body {
 
 .glitch:hover {
   animation: glitch 0.3s ease-in-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 5s ease-in-out infinite;
+}
+
+.animate-scan-line {
+  animation: scan-line 2s linear infinite;
 }
 
 /* ===== GRADIENTS ===== */
