@@ -744,11 +744,17 @@ export default function Battle() {
     playerActivePokemon,
     opponentActivePokemon,
     playerPokemonName: playerPokemon?.name,
-    opponentPokemonName: opponentPokemon?.name
+    opponentPokemonName: opponentPokemon?.name,
+    playerSpriteFront: playerPokemon?.sprites?.front,
+    playerSpriteBack: playerPokemon?.sprites?.back,
+    opponentSpriteFront: opponentPokemon?.sprites?.front,
+    opponentSpriteBack: opponentPokemon?.sprites?.back,
+    playerPokemonHP: playerPokemon?.currentHp,
+    opponentPokemonHP: opponentPokemon?.currentHp
   });
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-battle-arena">
+    <main className="relative min-h-screen flex flex-col overflow-hidden bg-battle-arena">
       <AudioPlayer src="/audio/battle.mp3" loop={true} />
 
       {/* Background Particles */}
@@ -1302,12 +1308,14 @@ export default function Battle() {
       </div>
 
       {/* Battle Arena */}
-      <div className="flex-1 relative overflow-hidden pt-16">
+      <div className={`flex-1 relative overflow-hidden pt-16 min-h-0 transition-all duration-300 ${
+        showBattleLog ? 'md:ml-80' : 'ml-0'
+      }`}>
         <div className="absolute inset-0 bg-gradient-to-b from-blue-900 via-purple-900 to-green-900"></div>
         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-green-800/50 to-transparent"></div>
 
-        <div className="relative h-full container mx-auto px-4 py-20">
-          <div className="h-full flex flex-col justify-between">
+        <div className="relative h-full container mx-auto px-4 py-8 md:py-12">
+          <div className="h-full flex flex-col justify-between gap-8">
             
             {/* Opponent's Pokemon - Top */}
             {opponentPokemon && (
@@ -1372,12 +1380,6 @@ export default function Battle() {
                         </span>
                       </div>
                     </div>
-
-                    {opponentPokemon.status && (
-                      <div className="mt-2 px-2 py-1 bg-purple-500/20 border border-purple-500 rounded text-xs text-purple-300 font-tech text-center">
-                        {opponentPokemon.status.toUpperCase()}
-                      </div>
-                    )}
                   </div>
                 </div>
 
