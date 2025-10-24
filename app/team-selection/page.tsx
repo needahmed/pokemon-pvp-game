@@ -8,6 +8,10 @@ import PokemonCard from "@/components/PokemonCard"
 import { PokemonCardSkeletonGrid } from "@/components/PokemonCardSkeleton"
 import LoadingSpinner from "@/components/LoadingSpinner"
 import SoundToggle from "@/components/SoundToggle"
+import { CircuitBoardPattern } from "@/components/animations/CircuitBoardPattern"
+import { HolographicGrid } from "@/components/animations/HolographicGrid"
+import { ScanningBeams } from "@/components/animations/ScanningBeams"
+import { DataParticles } from "@/components/animations/DataParticles"
 import type { Pokemon } from "@/lib/types"
 import { fetchAllPokemon, fetchPokemonDetails, formatPokemonName, fetchPokemonByNameOrId } from "@/lib/api"
 import io, { Socket } from "socket.io-client"
@@ -68,7 +72,7 @@ export default function TeamSelection() {
     const handleConnectError = (err: Error) => {
       console.error("Connection error:", err);
       setError("Failed to connect to server. Please try again.");
-      setSubmitting(false); // Stop submitting state if we can't connect
+      setSubmitting(false);
     };
     
     // Handle start battle event
@@ -78,7 +82,6 @@ export default function TeamSelection() {
       console.log(`Redirecting to: /battle?roomId=${roomId}&playerId=${playerId}`);
       setBattleStarting(true);
       
-      // Force navigation to battle page - more reliable than router.push
       setTimeout(() => {
         console.log("Executing redirect now...");
         window.location.href = `/battle?roomId=${roomId}&playerId=${playerId}`;
@@ -109,7 +112,6 @@ export default function TeamSelection() {
       console.log("Team status update:", data);
       
       if (data.players) {
-        // Update other players' status
         const others = Object.keys(data.players)
           .filter(id => id !== playerId)
           .map(id => ({
@@ -119,7 +121,6 @@ export default function TeamSelection() {
           }));
         setOtherPlayers(others);
         
-        // Check if all players have submitted teams - if so, show a message that battle is about to start
         const allSubmitted = Object.values(data.players).every((player: any) => player.teamSubmitted);
         if ((allSubmitted && Object.keys(data.players).length >= 2) || data.allSubmitted) {
           console.log("%c ALL PLAYERS HAVE SUBMITTED TEAMS - BATTLE SHOULD START SOON", 'background: #ff00ff; color: white; font-size: 16px');
@@ -150,19 +151,17 @@ export default function TeamSelection() {
     };
   }, [roomId, playerId]);
 
-  // No need to load Pokemon in batches, instead we'll search for specific Pokemon
+  // Search for Pokemon
   useEffect(() => {
     if (!searchTerm) {
       setSearchResults([]);
       return;
     }
     
-    // Start loading when user types something
     setIsLoading(true);
     
     const searchPokemon = async () => {
       try {
-        // Try to fetch by exact ID if the search term is a number
         if (!isNaN(Number(searchTerm))) {
           const pokemon = await fetchPokemonByNameOrId(searchTerm);
           if (pokemon) {
@@ -171,7 +170,6 @@ export default function TeamSelection() {
             setSearchResults([]);
           }
         } else {
-          // Search by name - fetch the first 10 matching Pokemon
           const allPokemon = await fetchAllPokemon();
           const matches = allPokemon
             .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -194,7 +192,6 @@ export default function TeamSelection() {
       }
     };
     
-    // Debounce the search to prevent too many API calls
     const timer = setTimeout(() => {
       searchPokemon();
     }, 500);
@@ -204,18 +201,15 @@ export default function TeamSelection() {
 
   const handlePokemonSelect = (pokemon: Pokemon) => {
     setSelectedPokemon((prev) => {
-      // If already selected, remove it
       const existingIndex = prev.findIndex(p => p.id === pokemon.id);
       if (existingIndex !== -1) {
         return prev.filter((_, index) => index !== existingIndex);
       }
 
-      // If already have 6 Pokémon and trying to add more, don't allow
       if (prev.length >= 6) {
         return prev;
       }
 
-      // Add the new Pokémon
       return [...prev, pokemon];
     });
   }
@@ -236,7 +230,6 @@ export default function TeamSelection() {
     
     console.log("%c Submitting team to server...", 'background: #ff00ff; color: white; font-size: 16px');
     
-    // Send team to the server
     socket.emit("submitTeam", { 
       roomId, 
       playerId, 
@@ -245,203 +238,441 @@ export default function TeamSelection() {
   }
 
   return (
-    <main className="min-h-screen p-4 bg-gray-100 page-transition">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-red-600 p-4 rounded-lg mb-6 flex flex-col md:flex-row justify-between items-center">
-          <h1 className="text-2xl text-white font-pokemon mb-4 md:mb-0">Select Your Team</h1>
+    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-950 to-teal-950 relative overflow-hidden page-transition">
+      {/* Animated circuit board pattern */}
+      <CircuitBoardPattern />
+      
+      {/* Holographic grid */}
+      <HolographicGrid />
+      
+      {/* Scanning beams */}
+      <ScanningBeams />
+      
+      {/* Data particles */}
+      <DataParticles count={100} />
 
-          <div className="flex items-center space-x-4">
-            <Link href="/" passHref>
-              <button 
-                className="bg-gray-500 hover:bg-gray-600 text-white font-pokemon py-2 px-4 rounded-lg transition-colors duration-200"
-              >
-                Back to Menu
-              </button>
-            </Link>
-            
-            <div className="bg-white px-4 py-2 rounded-lg font-pokemon text-sm">
-              {selectedPokemon.length}/6 Pokémon selected
-            </div>
-
-            <button
-              onClick={handleSubmitTeam}
-              disabled={selectedPokemon.length !== 6 || submitting || battleStarting}
-              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-pokemon py-2 px-4 rounded-lg transition-colors duration-200"
-            >
-              {submitting ? "Submitting..." : battleStarting ? "Starting..." : "Submit Team"}
-            </button>
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search Pokémon by name or ID..."
-            className="w-full p-3 rounded-lg border-2 border-gray-300 font-pokemon"
-          />
-        </div>
-
-        {error && <p className="bg-red-100 text-red-600 p-3 rounded-lg mb-4">{error}</p>}
-
-        {/* Lobby status */}
-        <div className="mb-6 bg-blue-50 p-4 rounded-lg shadow-md">
-          <h2 className="font-pokemon text-lg mb-2">Lobby Status</h2>
-          <p className="text-sm mb-2">
-            Room ID: <span className="font-mono bg-blue-100 px-1 py-0.5 rounded">{roomId}</span>
-          </p>
+      <div className="relative z-10 max-w-7xl mx-auto p-4">
+        {/* Header Command Bar */}
+        <div className="mb-6 relative">
+          <div className="absolute -inset-px bg-gradient-to-r from-lab-primary via-lab-secondary to-lab-primary rounded-2xl opacity-50 blur-sm"></div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-            {/* You */}
-            <div className="flex items-center justify-between bg-white p-3 rounded-lg">
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="font-bold text-blue-500">{playerId?.charAt(0)?.toUpperCase()}</span>
+          <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-2xl border border-lab-primary/50 p-4">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              
+              {/* Title Section */}
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-lab-primary to-lab-secondary rounded-lg flex items-center justify-center animate-pulse">
+                  <span className="text-2xl">🔬</span>
                 </div>
-                <div className="ml-3">
-                  <p className="font-medium">{playerId} (You)</p>
-                  <p className="text-xs text-gray-500">
-                    {battleStarting ? "Battle starting soon!" : 
-                     submitting ? "Submitting team..." : 
-                     selectedPokemon.length === 6 ? "Team ready to submit" : 
-                     `${selectedPokemon.length}/6 Pokémon selected`}
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-lab-primary to-lab-secondary">
+                    POKEMON SELECTION LAB
+                  </h1>
+                  <p className="text-lab-primary font-tech text-xs tracking-wider">
+                    &gt; TEAM BUILDER v3.0 • ROOM: {roomId}
                   </p>
                 </div>
               </div>
-              <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                battleStarting ? "bg-green-500 text-white" :
-                submitting ? "bg-green-100 text-green-800" : 
-                selectedPokemon.length === 6 ? "bg-yellow-100 text-yellow-800" : 
-                "bg-gray-100 text-gray-800"
-              }`}>
-                {battleStarting ? "Ready!" :
-                 submitting ? "Ready" : 
-                 selectedPokemon.length === 6 ? "Ready to submit" : 
-                 "Selecting"}
-              </div>
-            </div>
-            
-            {/* Other players */}
-            {otherPlayers.map(player => (
-              <div key={player.id} className="flex items-center justify-between bg-white p-3 rounded-lg">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                    <span className="font-bold text-red-500">{player.id.charAt(0).toUpperCase()}</span>
-                  </div>
-                  <div className="ml-3">
-                    <p className="font-medium">{player.id}</p>
-                    <p className="text-xs text-gray-500">
-                      {battleStarting ? "Battle starting soon!" :
-                       player.teamSubmitted ? "Team submitted" : "Selecting team..."}
-                    </p>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-4 flex-wrap justify-center">
+                {/* Team Counter */}
+                <div className="px-6 py-3 bg-black/50 border-2 border-lab-primary rounded-lg backdrop-blur-sm">
+                  <div className="flex items-center gap-3">
+                    <span className="font-tech text-sm text-gray-400">TEAM:</span>
+                    <div className="flex gap-1">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                            i < selectedPokemon.length
+                              ? 'border-lab-primary bg-lab-primary/20 scale-110'
+                              : 'border-gray-700 bg-gray-800/50'
+                          }`}
+                        >
+                          {i < selectedPokemon.length ? (
+                            <span className="text-xs text-lab-primary">✓</span>
+                          ) : (
+                            <span className="text-xs text-gray-600">{i + 1}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <span className={`font-tech text-xl font-bold ml-2 ${
+                      selectedPokemon.length === 6
+                        ? 'text-lab-primary animate-pulse'
+                        : 'text-gray-400'
+                    }`}>
+                      {selectedPokemon.length}/6
+                    </span>
                   </div>
                 </div>
-                <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  battleStarting ? "bg-green-500 text-white" :
-                  player.teamSubmitted ? "bg-green-100 text-green-800" : 
-                  "bg-gray-100 text-gray-800"
-                }`}>
-                  {battleStarting ? "Ready!" :
-                   player.teamSubmitted ? "Ready" : "Selecting"}
-                </div>
-              </div>
-            ))}
-            
-            {otherPlayers.length === 0 && (
-              <div className="flex items-center justify-center bg-gray-50 p-3 rounded-lg col-span-1 md:col-span-2">
-                <p className="text-gray-500 text-sm">Waiting for other players to join...</p>
-              </div>
-            )}
-            
-            {battleStarting && (
-              <div className="col-span-1 md:col-span-2 bg-green-100 p-4 rounded-lg text-center">
-                <p className="text-green-700 font-pokemon animate-pulse text-lg">Battle is starting...</p>
-                <p className="text-green-600 text-sm mt-1">You will be redirected to the battle page automatically.</p>
-                <p className="text-green-600 text-sm mt-1">If not redirected after a few seconds, please click the button below:</p>
-                
+
+                {/* Submit Button */}
                 <button
-                  onClick={() => window.location.href = `/battle?roomId=${roomId}&playerId=${playerId}`}
-                  className="mt-3 bg-green-500 hover:bg-green-600 text-white font-pokemon py-2 px-6 rounded-lg transition-colors duration-200"
+                  onClick={handleSubmitTeam}
+                  disabled={selectedPokemon.length !== 6 || submitting || battleStarting}
+                  className="group relative overflow-hidden rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
                 >
-                  Go to Battle
+                  <div className="absolute inset-0 bg-gradient-to-r from-lab-primary to-lab-secondary"></div>
+                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-30 transition-opacity"></div>
+                  
+                  {/* Scan line effect */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    <div className="scan-line-horizontal opacity-0 group-hover:opacity-100 group-hover:animate-scan-horizontal"></div>
+                  </div>
+                  
+                  <div className="relative px-8 py-3 flex items-center gap-2">
+                    <span className="text-xl">📡</span>
+                    <span className="font-display font-bold text-lg text-gray-900">
+                      {submitting ? 'UPLOADING...' : battleStarting ? 'STARTING...' : 'CONFIRM TEAM'}
+                    </span>
+                  </div>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-6 relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-lab-primary to-lab-secondary rounded-xl opacity-0 group-focus-within:opacity-50 blur transition-opacity"></div>
+          
+          <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-xl border border-lab-primary/30 overflow-hidden">
+            <div className="flex items-center p-4">
+              <span className="text-2xl mr-3">🔍</span>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search Pokemon by name or ID (e.g., 'Pikachu' or '25')..."
+                className="flex-1 bg-transparent text-white placeholder-gray-500 font-body text-lg outline-none"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="ml-3 px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors"
+                >
+                  CLEAR
+                </button>
+              )}
+            </div>
+            
+            {isLoading && (
+              <div className="h-1 bg-lab-primary animate-scan-horizontal"></div>
             )}
           </div>
         </div>
 
-        {/* Selected team preview */}
-        <div className="mb-6 bg-white p-4 rounded-lg shadow-md">
-          <h2 className="font-pokemon text-lg mb-2">Your Team</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-            {Array(6).fill(null).map((_, index) => {
-              const pokemon = selectedPokemon[index]
-              return (
-                <div key={index} className="bg-gray-100 p-2 rounded-lg aspect-square flex items-center justify-center">
-                  {pokemon ? (
-                    <div className="text-center cursor-pointer" onClick={() => handlePokemonSelect(pokemon)}>
-                      <Image 
-                        src={pokemon.sprites?.icon || `/icons/${pokemon.id}_icon.png`}
-                        alt={pokemon.name}
-                        width={64}
-                        height={64}
-                        className="mx-auto"
-                        unoptimized
-                        onError={(e) => {
-                          // Fallback to a direct PokeAPI sprite
-                          // @ts-ignore - TypeScript doesn't know about currentTarget.onerror
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
-                        }}
-                      />
-                      <span className="text-xs font-pokemon block truncate">
-                        {formatPokemonName(pokemon.name)}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="text-gray-400 text-center">
-                      <div className="w-16 h-16 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mx-auto">
-                        ?
-                      </div>
-                      <span className="text-xs font-pokemon">Empty</span>
-                    </div>
-                  )}
+        {/* Selected Team Preview */}
+        <div className="mb-6 relative">
+          <div className="absolute -inset-px bg-gradient-to-r from-lab-secondary to-lab-primary rounded-2xl opacity-30 blur"></div>
+          
+          <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-2xl border border-lab-secondary/50 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-display font-bold text-lab-secondary flex items-center gap-2">
+                <span className="text-2xl">⭐</span>
+                YOUR SELECTED TEAM
+              </h2>
+              
+              {selectedPokemon.length === 6 && (
+                <div className="px-4 py-2 bg-lab-primary/20 border border-lab-primary rounded-lg animate-pulse">
+                  <span className="font-tech text-lab-primary text-sm">✓ TEAM COMPLETE</span>
                 </div>
-              )
-            })}
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+              {Array.from({ length: 6 }).map((_, index) => {
+                const pokemon = selectedPokemon[index]
+                
+                return (
+                  <div
+                    key={index}
+                    className={`relative group aspect-square ${
+                      pokemon
+                        ? 'cursor-pointer'
+                        : 'cursor-default'
+                    }`}
+                    onClick={() => pokemon && handlePokemonSelect(pokemon)}
+                  >
+                    {/* Holographic border */}
+                    <div className={`absolute -inset-1 rounded-xl ${
+                      pokemon
+                        ? 'bg-gradient-to-r from-lab-primary to-lab-secondary opacity-50 group-hover:opacity-100'
+                        : 'bg-gray-700 opacity-20'
+                    } blur transition-all`}></div>
+                    
+                    <div className={`relative h-full rounded-xl border-2 ${
+                      pokemon
+                        ? 'border-lab-primary bg-gradient-to-br from-gray-800 to-gray-900'
+                        : 'border-gray-700 border-dashed bg-gray-800/30'
+                    } flex flex-col items-center justify-center p-3 transition-all ${
+                      pokemon ? 'hover:scale-105' : ''
+                    }`}>
+                      
+                      {pokemon ? (
+                        <>
+                          {/* Slot number badge */}
+                          <div className="absolute top-2 left-2 w-6 h-6 bg-lab-primary rounded-full flex items-center justify-center text-xs font-bold text-gray-900">
+                            {index + 1}
+                          </div>
+                          
+                          {/* Remove button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handlePokemonSelect(pokemon)
+                            }}
+                            className="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs hover:scale-110 transition-transform"
+                          >
+                            ×
+                          </button>
+                          
+                          {/* Pokemon sprite */}
+                          <div className="relative mb-2">
+                            <div className="absolute inset-0 bg-lab-primary/20 rounded-full blur-lg animate-pulse"></div>
+                            <Image
+                              src={pokemon.sprites?.icon || `/sprites/${pokemon.id}_icon.png`}
+                              alt={pokemon.name}
+                              width={64}
+                              height={64}
+                              className="relative pixelated"
+                              unoptimized
+                              onError={(e) => {
+                                // @ts-ignore
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
+                              }}
+                            />
+                          </div>
+                          
+                          <span className="text-xs font-tech text-lab-primary text-center truncate w-full">
+                            {formatPokemonName(pokemon.name)}
+                          </span>
+                        </>
+                      ) : (
+                        <div className="text-center">
+                          <div className="w-16 h-16 border-2 border-dashed border-gray-700 rounded-full flex items-center justify-center mb-2 animate-pulse">
+                            <span className="text-3xl opacity-30">?</span>
+                          </div>
+                          <span className="text-xs font-tech text-gray-600">
+                            SLOT {index + 1}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Search results */}
-        <div>
-          <h2 className="font-pokemon text-lg mb-2">Search Results</h2>
+        {/* Lobby Status Indicator */}
+        <div className="mb-6 relative">
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 backdrop-blur-sm">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="font-tech text-sm text-gray-300">
+                  TRAINERS IN LOBBY: {otherPlayers.length + 1}/{2}
+                </span>
+              </div>
+              
+              <div className="flex gap-4 flex-wrap">
+                {[{ id: playerId, ready: submitting || battleStarting }, ...otherPlayers].map((player, i) => (
+                  <div
+                    key={player.id}
+                    className={`px-4 py-2 rounded-lg border ${
+                      player.ready || player.teamSubmitted
+                        ? 'bg-green-500/20 border-green-500'
+                        : 'bg-gray-700/30 border-gray-600'
+                    } transition-all`}
+                  >
+                    <span className={`font-tech text-xs ${
+                      player.ready || player.teamSubmitted ? 'text-green-400' : 'text-gray-400'
+                    }`}>
+                      {player.id === playerId ? 'YOU' : `TRAINER ${i}`}: {
+                        player.ready || player.teamSubmitted ? '✓' : '⏳'
+                      }
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/20 border-2 border-red-500 rounded-lg animate-shake">
+            <p className="text-red-300 text-center font-tech">{error}</p>
+          </div>
+        )}
+
+        {/* Pokemon Grid */}
+        <div className="relative">
+          <h2 className="text-2xl font-display font-bold text-lab-tech mb-4 flex items-center gap-2">
+            <span className="text-2xl">💾</span>
+            POKEMON DATABASE
+          </h2>
+
           {isLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              <PokemonCardSkeletonGrid count={10} />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="aspect-square bg-gray-800/50 rounded-xl animate-pulse border border-gray-700"
+                />
+              ))}
             </div>
           ) : searchTerm && searchResults.length === 0 ? (
-            <div className="text-center p-8 bg-white rounded-lg shadow-md">
-              <p className="font-pokemon text-gray-600">No Pokémon found matching "{searchTerm}"</p>
-              <p className="text-sm text-gray-500 mt-2">Try searching by name (e.g., "pikachu") or ID (e.g., "25")</p>
+            <div className="text-center py-16 bg-gray-800/30 rounded-xl border-2 border-dashed border-gray-700">
+              <span className="text-6xl mb-4 block">🔍</span>
+              <p className="font-tech text-gray-500">
+                NO POKEMON FOUND FOR "{searchTerm}"
+              </p>
+              <p className="text-sm text-gray-600 mt-2">
+                Try searching by name or Pokedex number
+              </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {searchResults.map((pokemon) => (
-            <PokemonCard
-              key={pokemon.id}
-              pokemon={pokemon}
-                  isSelected={selectedPokemon.some(p => p.id === pokemon.id)}
-                  onSelect={() => handlePokemonSelect(pokemon)}
-                  disabled={selectedPokemon.length >= 6 && !selectedPokemon.some(p => p.id === pokemon.id)}
-            />
-          ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {searchResults.map((pokemon) => {
+                const isSelected = selectedPokemon.some(p => p.id === pokemon.id)
+                const isDisabled = selectedPokemon.length >= 6 && !isSelected
+                
+                return (
+                  <div
+                    key={pokemon.id}
+                    onClick={() => !isDisabled && handlePokemonSelect(pokemon)}
+                    className={`group relative aspect-square cursor-pointer transition-all ${
+                      isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:scale-105'
+                    }`}
+                  >
+                    {/* Holographic effect */}
+                    <div className={`absolute -inset-1 rounded-xl blur transition-all ${
+                      isSelected
+                        ? 'bg-gradient-to-r from-lab-primary to-lab-secondary opacity-75 group-hover:opacity-100'
+                        : isDisabled
+                        ? 'bg-gray-700 opacity-20'
+                        : 'bg-lab-tech opacity-0 group-hover:opacity-50'
+                    }`}></div>
+                    
+                    <div className={`relative h-full rounded-xl border-2 ${
+                      isSelected
+                        ? 'border-lab-primary bg-gradient-to-br from-gray-800 to-teal-900'
+                        : isDisabled
+                        ? 'border-gray-700 bg-gray-800/50'
+                        : 'border-gray-700 bg-gray-800 group-hover:border-lab-tech'
+                    } p-3 flex flex-col items-center justify-between transition-all`}>
+                      
+                      {/* Pokedex number */}
+                      <div className={`absolute top-2 left-2 px-2 py-1 rounded text-xs font-mono ${
+                        isSelected
+                          ? 'bg-lab-primary text-gray-900'
+                          : 'bg-gray-700 text-gray-400'
+                      }`}>
+                        #{String(pokemon.id).padStart(3, '0')}
+                      </div>
+                      
+                      {/* Selected badge */}
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 w-8 h-8 bg-lab-primary rounded-full flex items-center justify-center animate-bounce">
+                          <span className="text-gray-900 font-bold">✓</span>
+                        </div>
+                      )}
+                      
+                      {/* Pokemon sprite */}
+                      <div className="flex-1 flex items-center justify-center">
+                        <div className="relative">
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-lab-primary/30 rounded-full blur-lg animate-pulse"></div>
+                          )}
+                          <Image
+                            src={pokemon.sprites?.front || `/sprites/${pokemon.id}.png`}
+                            alt={pokemon.name}
+                            width={96}
+                            height={96}
+                            className="relative pixelated"
+                            unoptimized
+                            onError={(e) => {
+                              e.currentTarget.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`
+                            }}
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Pokemon info */}
+                      <div className="w-full text-center">
+                        <p className={`font-tech text-sm mb-1 truncate ${
+                          isSelected ? 'text-lab-primary' : 'text-white'
+                        }`}>
+                          {formatPokemonName(pokemon.name)}
+                        </p>
+                        
+                        {/* Type badges */}
+                        <div className="flex justify-center gap-1">
+                          {pokemon.types.map((type, i) => (
+                            <span
+                              key={i}
+                              className="px-2 py-0.5 text-xs rounded font-tech uppercase"
+                              style={{
+                                backgroundColor: `var(--color-${type})`,
+                                color: ['electric', 'ice', 'fairy', 'normal'].includes(type) ? '#000' : '#fff'
+                              }}
+                            >
+                              {type}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
       </div>
 
-      <footer className="mt-8 text-center text-xs text-gray-600 font-pokemon">
+      {/* Battle Starting Overlay */}
+      {battleStarting && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="relative w-32 h-32 mx-auto mb-8">
+              {/* Multiple rotating rings */}
+              <div className="absolute inset-0 border-4 border-lab-primary border-t-transparent rounded-full animate-spin"></div>
+              <div className="absolute inset-4 border-4 border-lab-secondary border-b-transparent rounded-full animate-spin-reverse"></div>
+              <div className="absolute inset-8 border-4 border-lab-tech border-r-transparent rounded-full animate-spin"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-5xl animate-pulse">⚔️</span>
+              </div>
+            </div>
+            
+            <h2 className="text-4xl font-display font-black text-transparent bg-clip-text bg-gradient-lab mb-4 animate-pulse">
+              BATTLE STARTING
+            </h2>
+            <p className="text-lab-primary font-tech text-lg">
+              Initializing battle arena...
+            </p>
+            
+            {/* Progress dots */}
+            <div className="flex justify-center gap-2 mt-6">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="w-3 h-3 bg-lab-primary rounded-full animate-pulse"
+                  style={{ animationDelay: `${i * 0.2}s` }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <footer className="relative z-10 mt-8 text-center text-xs text-gray-600 font-tech pb-4">
         Fan-made project, not affiliated with Pokémon.
       </footer>
       

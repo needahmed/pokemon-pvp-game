@@ -6,15 +6,14 @@ import io, { Socket } from "socket.io-client"
 import Image from "next/image"
 import Link from "next/link"
 import SoundToggle from "@/components/SoundToggle"
-
-// Global socket connection
-// let socket: Socket | null = null; // Removed global socket
+import { SpotlightBeams } from "@/components/animations/SpotlightBeams"
+import { ChampionSparks } from "@/components/animations/ChampionSparks"
 
 // Component to contain the lobby logic
 function LobbyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const roomId = searchParams.get("roomId")?.toUpperCase(); // Ensure roomId is consistently uppercase
+  const roomId = searchParams.get("roomId")?.toUpperCase();
   const playerId = searchParams.get("playerId");
 
   const socketRef = useRef<Socket | null>(null);
@@ -23,7 +22,7 @@ function LobbyContent() {
   const [connecting, setConnecting] = useState(true);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
-  const MAX_PLAYERS = 2; // Define max players
+  const MAX_PLAYERS = 2;
 
   useEffect(() => {
     console.log("[Lobby] useEffect triggered. RoomID:", roomId, "PlayerID:", playerId);
@@ -42,16 +41,15 @@ function LobbyContent() {
             reconnectionAttempts: 5, 
             timeout: 10000, 
             transports: ['websocket', 'polling']
-            // autoConnect: true, // Default is true, io() will attempt to connect
         });
-        setConnecting(true); // We are attempting to connect since socket was just created
+        setConnecting(true);
     } else if (!socketRef.current.connected) {
        console.log("SocketRef exists but not connected, attempting to connect...");
-       socketRef.current.connect(); // Use socketRef.current
+       socketRef.current.connect();
     } else {
-       console.log("SocketRef already connected:", socketRef.current.id); // Use socketRef.current
+       console.log("SocketRef already connected:", socketRef.current.id);
        setConnecting(false);
-       socketRef.current?.emit("joinRoom", { roomId, playerId }); // Use socketRef.current
+       socketRef.current?.emit("joinRoom", { roomId, playerId });
     }
     
     const currentSocket = socketRef.current; 
@@ -67,13 +65,12 @@ function LobbyContent() {
         console.log("[Lobby] Socket disconnected. Reason:", reason, "Socket ID:", currentSocket.id);
         setConnecting(false);
         if (reason === "io server disconnect") {
-            setError("Disconnected by server."); // User might need to rejoin or refresh
+            setError("Disconnected by server.");
         } else if (reason === "io client disconnect") {
             setError("You disconnected.");
         } else {
             setError("Connection lost. Please check internet.");
         }
-        // setPlayers([]); // Consider clearing players
     };
 
     const onConnectError = (err: Error) => {
@@ -96,8 +93,8 @@ function LobbyContent() {
         console.log("[Lobby] Received playerKicked:", kickedPlayerId, "Socket ID:", currentSocket.id);
         if (kickedPlayerId === playerId) {
             alert("You have been kicked from the lobby.");
-            currentSocket.disconnect(); // Disconnect the actual socket instance
-            socketRef.current = null; // Nullify the ref
+            currentSocket.disconnect();
+            socketRef.current = null;
             router.push("/");
         }
     };
@@ -135,23 +132,15 @@ function LobbyContent() {
     currentSocket.on("playerLeft", onPlayerLeft);
     currentSocket.on("playerReady", onPlayerReady);
 
-    // Handle case where socket might already be connected (e.g. due to StrictMode re-render or hot reload)
+    // Handle case where socket might already be connected
     if (currentSocket.connected) {
         console.log("[Lobby] useEffect: Socket was already connected (ID:", currentSocket.id, "). Re-emitting joinRoom.");
-        setConnecting(false); // Already connected
-        currentSocket.emit("joinRoom", { roomId, playerId }); // Ensure joinRoom is emitted
+        setConnecting(false);
+        currentSocket.emit("joinRoom", { roomId, playerId });
     } else {
-        // If not connected, io() constructor should be attempting to connect. 
-        // If it's not even in a 'connecting' state, try an explicit connect.
-        // Note: socket.io-client v3+ `io.Socket.connecting` was removed.
-        // We rely on `connected` flag and the `connect` event.
-        // If it's not connected, and we didn't just create it (where `setConnecting(true)` was called),
-        // it might imply an issue. However, io() should handle initial connection.
-        // We can ensure `setConnecting(true)` if it's not connected.
         if (!currentSocket.connected) {
             console.log("[Lobby] useEffect: Socket not connected. 'connect' event will handle joinRoom. Current ID (if any):", currentSocket.id);
-            setConnecting(true); // Explicitly set connecting if not connected.
-            // currentSocket.connect(); // Avoid explicit connect if io() is already handling it, unless issues persist
+            setConnecting(true);
         }
     }
 
@@ -167,13 +156,9 @@ function LobbyContent() {
         currentSocket.off("playerLeft", onPlayerLeft);
         currentSocket.off("playerReady", onPlayerReady);
         console.log("[Lobby] Listeners removed for socket ID:", currentSocket.id);
-        // Decide on disconnect strategy: if socketRef.current is not nulled (e.g. on kick), it will persist.
-        // If roomId/playerId changes, a new socket will be made.
-        // If component unmounts completely, socketRef.current?.disconnect() could be called here.
-        // For now, this cleanup only removes listeners, allowing the socket to persist through StrictMode re-renders.
         if (currentSocket?.connected) {
           console.log("Disconnecting socket on cleanup:", currentSocket.id);
-          currentSocket.disconnect(); // Added disconnect
+          currentSocket.disconnect();
         }
     };
 }, [roomId, playerId, router]);
@@ -219,9 +204,9 @@ function LobbyContent() {
   const allPlayersPresentAndReady = players.length === MAX_PLAYERS && players.every(p => p.ready);
 
   // Initial loading/error before useEffect if params missing
-  if (!roomId || !playerId && !connecting) { // Added !connecting to prevent flash if params load slow
+  if (!roomId || !playerId && !connecting) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-700 via-red-600 to-orange-500 p-4 text-white">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-950 via-indigo-950 to-black p-4 text-white">
         <Image src="/logo.png" alt="Logo" width={200} height={100} className="mb-6 drop-shadow-lg" />
         <h1 className="text-3xl font-pokemon mb-3">Oops!</h1>
         <p className="mb-6 font-semibold text-lg">Room ID or Player ID is missing.</p>
@@ -235,29 +220,43 @@ function LobbyContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-red-700 via-red-600 to-orange-500 font-sans">
-      {/* Header remains for navigation */}
-      <header className="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-indigo-950 to-black relative overflow-hidden font-sans">
+      {/* Dramatic spotlight beams */}
+      <SpotlightBeams count={4} />
+      
+      {/* Particle sparks */}
+      <ChampionSparks count={50} />
+      
+      {/* Header */}
+      <header className="relative z-50 bg-black/30 backdrop-blur-md shadow-md sticky top-0 border-b border-arena-primary/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <Link href="/" legacyBehavior>
             <a className="flex items-center">
               <Image src="/logo.png" alt="Site Logo" width={100} height={35} />
-              <span className="ml-2 text-xl font-pokemon text-gray-700 hover:text-red-500">Home</span>
+              <span className="ml-2 text-xl font-pokemon text-arena-accent hover:text-arena-primary transition-colors">Home</span>
             </a>
           </Link>
-          <h1 className="text-2xl font-pokemon text-red-600 tracking-wide [text-shadow:_1px_1px_0_rgb(255_255_255_/_70%)]">Battle Lobby</h1>
+          <h1 className="text-2xl font-display text-transparent bg-clip-text bg-gradient-to-r from-arena-primary via-white to-arena-primary">
+            CHAMPION'S LOBBY
+          </h1>
         </div>
       </header>
 
-      <main className="flex-grow flex flex-col items-center justify-center p-4 text-white">
+      <main className="relative z-10 flex-grow flex flex-col items-center justify-center p-4 text-white">
         {connecting ? (
           <div className="text-center">
-            <Image src="/images/pokeball.jpg" alt="Loading..." width={80} height={80} unoptimized className="drop-shadow-lg animate-spin mx-auto mb-4" />
-            <p className="font-pokemon text-2xl [text-shadow:_1px_1px_1px_rgb(0_0_0_/_30%)]">Connecting to Lobby...</p>
+            <div className="relative w-32 h-32 mx-auto mb-8">
+              <div className="absolute inset-0 border-4 border-arena-primary border-t-transparent rounded-full animate-spin"></div>
+              <div className="absolute inset-4 border-4 border-arena-accent border-b-transparent rounded-full animate-spin-reverse"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-4xl">🏟️</span>
+              </div>
+            </div>
+            <p className="font-display text-2xl text-arena-primary animate-pulse">Connecting to Arena...</p>
           </div>
-        ) : error && !connecting && !players.length ? ( // Show connection error more prominently if it happens before any player data
-          <div className="w-full max-w-md bg-red-700 bg-opacity-80 rounded-xl shadow-2xl p-8 text-center border-2 border-red-900">
-            <h2 className="text-3xl font-pokemon text-yellow-300 mb-4 [text-shadow:_1px_1px_0_rgb(0_0_0_/_40%)]">Connection Error</h2>
+        ) : error && !connecting && !players.length ? (
+          <div className="w-full max-w-md bg-red-700/80 rounded-xl shadow-2xl p-8 text-center border-2 border-red-900 backdrop-blur-sm">
+            <h2 className="text-3xl font-display text-yellow-300 mb-4">Connection Error</h2>
             <p className="text-white mb-6 text-lg">{error}</p>
             <Link href="/play" legacyBehavior>
               <a className="bg-yellow-400 hover:bg-yellow-500 text-red-700 font-pokemon py-3 px-8 rounded-lg shadow-lg transition-colors text-xl border-2 border-yellow-600">
@@ -266,98 +265,273 @@ function LobbyContent() {
             </Link>
           </div>
         ) : (
-          // Main Lobby Card (Styled as per image)
-          <div className="w-full max-w-2xl bg-pink-200 rounded-xl shadow-2xl overflow-hidden border-4 border-yellow-400">
-            {/* Card Top Bar (Room ID) */}
-            <div className="bg-red-500 p-6 text-center">
-              <h2 className="text-4xl text-white font-pokemon tracking-wider mb-2 [text-shadow:_2px_2px_0_rgb(0_0_0_/_20%)]">
-                Room: {roomId}
-              </h2>
-              <button 
-                onClick={copyRoomIdToClipboard}
-                className="bg-yellow-400 hover:bg-yellow-500 text-gray-800 px-4 py-2 rounded-md text-sm font-bold shadow-md transition-colors border-2 border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-300"
-              >
-                {copied ? "Copied!" : "Copy Room ID"}
-              </button>
-            </div>
-
-            {/* Players & Actions Area */}
-            <div className="p-6 bg-red-300 grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Players List Panel */}
-              <div className="md:col-span-2 bg-red-400 p-4 rounded-lg shadow-inner min-h-[150px]">
-                <h3 className="text-2xl font-pokemon text-yellow-300 mb-4 text-center [text-shadow:_1px_1px_0_rgb(0_0_0_/_25%)]">Players ({players.length}/{MAX_PLAYERS})</h3>
-                {players.length > 0 ? (
-                  <ul className="space-y-2">
-                    {players.map((player, index) => (
-                      <li key={player.id} 
-                          className={`flex items-center justify-between p-3 rounded-md shadow-sm 
-                                      ${player.id === playerId ? 'bg-yellow-200 border-2 border-yellow-500' : 'bg-red-200 border border-red-300'}`}>
-                        <div className="flex items-center">
-                          <Image 
-                            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${(index % 151) + 1}.png`} 
-                            alt="Player Avatar" width={36} height={36}
-                            className={`rounded-full mr-2 p-0.5 ${player.id === playerId ? 'bg-yellow-100' : 'bg-red-100'}`}/>
-                          <span className={`font-semibold ${player.id === playerId ? 'text-red-600' : 'text-gray-700'}`}>
-                            {player.id} {player.isHost && <span className="text-xs text-yellow-700">(Host)</span>}
-                          </span>
-                        </div>
-                        <div className="flex items-center">
-                        {player.ready ? (
-                            <span className="text-xs font-bold text-green-700 bg-green-200 px-2 py-1 rounded-full flex items-center">
-                               <svg className="w-3 h-3 mr-1 fill-current text-green-600" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
-                                READY
-                            </span>
-                            ) : (
-                            <span className="text-xs font-bold text-red-700 bg-red-200 px-2 py-1 rounded-full">NOT READY</span>
-                            )}
-                            {isCurrentUserHost && player.id !== playerId && (
-                                <button onClick={() => handleKickPlayer(player.id)}
-                                        className="ml-2 bg-gray-500 hover:bg-gray-600 text-white text-xs font-bold py-1 px-1.5 rounded-sm shadow-sm transition-colors"
-                                        title="Kick Player"> X </button>
-                            )}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-center text-white font-semibold py-6 [text-shadow:_1px_1px_1px_rgb(0_0_0_/_20%)]">Waiting for players to join...</p>
-                )}
+          <div className="container mx-auto px-4 py-8 min-h-screen flex items-center justify-center">
+            <div className="w-full max-w-6xl relative">
+              
+              {/* Championship Title Banner */}
+              <div className="relative mb-8 text-center">
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-full max-w-2xl h-1 bg-gradient-to-r from-transparent via-arena-primary to-transparent"></div>
+                
+                <div className="inline-block relative">
+                  <div className="absolute -inset-8 bg-arena-primary/30 blur-3xl animate-pulse-champion"></div>
+                  
+                  <h1 className="relative text-5xl md:text-7xl font-display font-black mb-2">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-arena-primary via-white to-arena-primary animate-shine bg-[length:200%_auto]">
+                      CHAMPION'S LOBBY
+                    </span>
+                  </h1>
+                  
+                  {/* Room code */}
+                  <div className="relative mt-4 inline-flex items-center gap-4">
+                    <div className="w-16 h-0.5 bg-gradient-to-r from-transparent to-arena-primary"></div>
+                    <div className="px-8 py-3 bg-black/50 border-2 border-arena-primary rounded-lg backdrop-blur-sm">
+                      <span className="font-tech text-2xl text-arena-primary tracking-widest">
+                        {roomId}
+                      </span>
+                    </div>
+                    <div className="w-16 h-0.5 bg-gradient-to-l from-transparent to-arena-primary"></div>
+                  </div>
+                  
+                  {/* Copy button */}
+                  <button
+                    onClick={copyRoomIdToClipboard}
+                    className="mt-4 px-6 py-2 bg-arena-primary/20 border border-arena-primary rounded-lg hover:bg-arena-primary/30 transition-all font-tech text-sm text-arena-primary hover:scale-105"
+                  >
+                    {copied ? '✓ COPIED!' : '📋 COPY CODE'}
+                  </button>
+                </div>
+                
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-full max-w-2xl h-1 bg-gradient-to-r from-transparent via-arena-primary to-transparent"></div>
               </div>
 
-              {/* Actions Panel */}
-              <div className="md:col-span-1 bg-red-400 p-4 rounded-lg shadow-inner flex flex-col justify-center items-center min-h-[150px]">
-                <h3 className="text-2xl font-pokemon text-yellow-300 mb-3 text-center [text-shadow:_1px_1px_0_rgb(0_0_0_/_25%)]">Actions</h3>
-                {error && !connecting && (
-                    <p className="text-yellow-200 text-xs bg-red-600 p-2 rounded-md text-center mb-2 shadow-md">{error}</p>
-                )}
-                {!currentPlayer?.ready && (
-                  <button 
-                    onClick={handleReadyUp}
-                    className="w-full bg-green-500 hover:bg-green-600 text-white font-pokemon py-3 px-4 rounded-lg shadow-md transition-colors duration-200 border-2 border-green-700 hover:border-green-800 text-lg tracking-wider [text-shadow:_1px_1px_1px_rgb(0_0_0_/_30%)] focus:outline-none focus:ring-2 focus:ring-green-400"
-                  >
-                    Ready Up!
-                  </button>
-                )}
-                {isCurrentUserHost && (
-                  <button 
-                    onClick={handleStartGame}
-                    disabled={!allPlayersPresentAndReady}
-                    className="w-full mt-3 bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-400 disabled:text-gray-600 disabled:border-gray-500 text-red-700 font-pokemon py-3 px-4 rounded-lg shadow-md transition-colors duration-200 border-2 border-yellow-600 hover:border-yellow-700 text-lg tracking-wider [text-shadow:_1px_1px_0px_rgb(255_255_255_/_30%)] focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                  >
-                    Start Game
-                  </button>
-                )}
-                 <p className="text-xs text-center text-red-100 mt-4 [text-shadow:_1px_1px_0_rgb(0_0_0_/_20%)]">
-                  {isCurrentUserHost ? 
-                    (allPlayersPresentAndReady ? 'All set! Start the game!' : `Waiting for ${MAX_PLAYERS - players.length} more player(s) or for players to ready up.`)
-                    : 
-                    (currentPlayer?.ready ? 'Waiting for host to start...' : 'Click Ready Up when you are set!')}
-                </p>
+              {/* Main Arena Card */}
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-arena-primary via-arena-secondary to-arena-dragon opacity-20 blur-2xl animate-pulse-slow"></div>
+                
+                <div className="relative bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl rounded-3xl border-4 border-arena-primary shadow-2xl overflow-hidden">
+                  
+                  <div className="h-3 bg-gradient-to-r from-arena-primary via-arena-secondary to-arena-dragon"></div>
+                  
+                  <div className="p-8">
+                    {/* Battle Status Banner */}
+                    <div className="mb-8 text-center">
+                      <div className="inline-flex items-center gap-3 px-8 py-3 bg-black/50 rounded-full border-2 border-arena-accent">
+                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="font-tech text-arena-accent text-sm tracking-wider">
+                          ARENA STATUS: PREPARING
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Trainers Grid */}
+                    <div className="grid md:grid-cols-2 gap-6 mb-8">
+                      {players.map((player, index) => (
+                        <div
+                          key={player.id}
+                          className={`relative group ${
+                            player.id === playerId
+                              ? 'ring-4 ring-arena-primary'
+                              : 'ring-2 ring-arena-accent/30'
+                          } rounded-2xl`}
+                        >
+                          <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border-2 border-gray-600 hover:border-arena-primary transition-all">
+                            
+                            {/* Trainer Header */}
+                            <div className="flex items-center gap-4 mb-4">
+                              {/* Avatar */}
+                              <div className="relative">
+                                <div className={`absolute -inset-2 ${
+                                  player.id === playerId 
+                                    ? 'bg-arena-primary' 
+                                    : 'bg-arena-accent'
+                                  } rounded-full opacity-30 blur animate-pulse`}></div>
+                                
+                                <div className={`relative w-20 h-20 rounded-full border-4 ${
+                                  player.id === playerId
+                                    ? 'border-arena-primary'
+                                    : 'border-arena-accent'
+                                } overflow-hidden bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center`}>
+                                  <Image
+                                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${(index * 37 + 25) % 386 + 1}.png`}
+                                    alt="Trainer"
+                                    width={64}
+                                    height={64}
+                                    unoptimized
+                                  />
+                                </div>
+                                
+                                {player.isHost && (
+                                  <div className="absolute -top-1 -right-1 w-8 h-8 bg-arena-primary rounded-full flex items-center justify-center border-2 border-gray-900 text-sm">
+                                    👑
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Trainer Info */}
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h3 className={`font-display font-bold text-xl ${
+                                    player.id === playerId
+                                      ? 'text-arena-primary'
+                                      : 'text-white'
+                                  }`}>
+                                    {player.id}
+                                  </h3>
+                                  {player.id === playerId && (
+                                    <span className="px-2 py-0.5 bg-arena-primary/20 text-arena-primary text-xs font-tech rounded">
+                                      YOU
+                                    </span>
+                                  )}
+                                </div>
+                                
+                                {player.isHost && (
+                                  <span className="text-xs text-arena-primary font-tech">
+                                    CHAMPION SEAT
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Kick button */}
+                              {isCurrentUserHost && player.id !== playerId && (
+                                <button
+                                  onClick={() => handleKickPlayer(player.id)}
+                                  className="px-3 py-1 bg-red-500/20 border border-red-500 rounded text-red-400 text-sm hover:bg-red-500/30 transition-all font-tech"
+                                >
+                                  REMOVE
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Ready Status */}
+                            <div className={`p-4 rounded-lg border-2 ${
+                              player.ready
+                                ? 'bg-green-500/10 border-green-500'
+                                : 'bg-gray-700/30 border-gray-600'
+                            } transition-all`}>
+                              <div className="flex items-center justify-between">
+                                <span className={`font-tech text-sm ${
+                                  player.ready ? 'text-green-400' : 'text-gray-400'
+                                }`}>
+                                  {player.ready ? '✓ READY TO BATTLE' : '⏳ PREPARING...'}
+                                </span>
+                                
+                                {player.ready && (
+                                  <div className="flex gap-1">
+                                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Empty slots */}
+                      {Array.from({ length: MAX_PLAYERS - players.length }).map((_, i) => (
+                        <div
+                          key={`empty-${i}`}
+                          className="bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-sm rounded-2xl p-6 border-2 border-dashed border-gray-700"
+                        >
+                          <div className="h-full flex flex-col items-center justify-center text-center py-8">
+                            <div className="w-20 h-20 rounded-full border-4 border-dashed border-gray-700 flex items-center justify-center mb-4 animate-pulse">
+                              <span className="text-4xl opacity-30">❓</span>
+                            </div>
+                            <p className="text-gray-500 font-tech text-sm">
+                              WAITING FOR TRAINER...
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Action Area */}
+                    <div className="relative">
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-0.5 bg-gradient-to-r from-transparent via-arena-primary to-transparent"></div>
+                      
+                      <div className="pt-8 flex flex-col items-center gap-4">
+                        
+                        {/* Error message */}
+                        {error && !connecting && (
+                          <div className="w-full max-w-md p-4 bg-red-500/20 border-2 border-red-500 rounded-lg animate-shake">
+                            <p className="text-red-300 text-center font-tech text-sm">
+                              ⚠️ {error}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Ready Up Button */}
+                        {!currentPlayer?.ready && (
+                          <button
+                            onClick={handleReadyUp}
+                            className="group relative w-full max-w-md overflow-hidden rounded-xl transition-all duration-300 hover:scale-105"
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500"></div>
+                            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                            
+                            <div className="relative px-8 py-6 flex items-center justify-center gap-3">
+                              <span className="text-3xl animate-bounce">⚔️</span>
+                              <span className="font-display font-bold text-2xl text-white tracking-wide">
+                                I'M READY!
+                              </span>
+                              <span className="text-3xl animate-bounce" style={{animationDelay: '0.2s'}}>⚔️</span>
+                            </div>
+                          </button>
+                        )}
+
+                        {/* Start Game Button (Host Only) */}
+                        {isCurrentUserHost && (
+                          <button
+                            onClick={handleStartGame}
+                            disabled={!allPlayersPresentAndReady}
+                            className="group relative w-full max-w-md overflow-hidden rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                          >
+                            <div className="absolute inset-0 bg-gradient-arena"></div>
+                            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                            
+                            <div className="relative px-8 py-6 flex items-center justify-center gap-3">
+                              <span className="text-3xl">🏆</span>
+                              <span className="font-display font-bold text-2xl text-white tracking-wide">
+                                BEGIN BATTLE
+                              </span>
+                              <span className="text-3xl">🏆</span>
+                            </div>
+                          </button>
+                        )}
+
+                        {/* Status Text */}
+                        <p className="text-center text-gray-400 font-tech text-sm max-w-md">
+                          {isCurrentUserHost ? (
+                            allPlayersPresentAndReady ? (
+                              <span className="text-green-400 animate-pulse">
+                                ✓ ALL TRAINERS READY - START WHEN PREPARED
+                              </span>
+                            ) : (
+                              `Waiting for ${MAX_PLAYERS - players.length} more trainer(s)...`
+                            )
+                          ) : (
+                            currentPlayer?.ready ? (
+                              <span className="text-green-400">
+                                ✓ Waiting for champion to start battle...
+                              </span>
+                            ) : (
+                              'Click ready when you are prepared for battle'
+                            )
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="h-3 bg-gradient-to-r from-arena-dragon via-arena-secondary to-arena-primary"></div>
+                </div>
               </div>
             </div>
           </div>
         )}
-        <footer className="w-full py-8 text-center text-white/80 text-sm">
+        
+        <footer className="relative z-10 w-full py-8 text-center text-white/80 text-sm">
           <p>Pokémon © Nintendo, Creatures Inc., GAME FREAK inc. This is a fan-created project.</p>
         </footer>
         
@@ -371,11 +545,17 @@ function LobbyContent() {
 // Suspense fallback loading component
 function LobbyLoading() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-700 via-red-600 to-orange-500 p-4 text-white">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 via-indigo-950 to-black p-4 text-white">
       <div className="text-center">
-        <Image src="/images/pokeball.jpg" alt="Loading Lobby..." width={80} height={80} unoptimized className="drop-shadow-lg animate-spin mx-auto mb-4" />
-        <p className="font-pokemon text-2xl [text-shadow:_1px_1px_1px_rgb(0_0_0_/_30%)]">Loading Lobby...</p>
-        <p className="text-sm text-yellow-200">Please wait while we connect you.</p>
+        <div className="relative w-32 h-32 mx-auto mb-8">
+          <div className="absolute inset-0 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+          <div className="absolute inset-4 border-4 border-blue-400 border-b-transparent rounded-full animate-spin-reverse"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-4xl">🏟️</span>
+          </div>
+        </div>
+        <p className="font-display text-2xl text-yellow-400 animate-pulse">Loading Arena...</p>
+        <p className="text-sm text-yellow-200 mt-2">Please wait while we connect you.</p>
       </div>
     </div>
   );
@@ -388,4 +568,4 @@ export default function LobbyPage() {
       <LobbyContent />
     </Suspense>
   );
-} 
+}
