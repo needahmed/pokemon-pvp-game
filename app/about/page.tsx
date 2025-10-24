@@ -1,89 +1,240 @@
-"use client";
+"use client"
 
-import Link from 'next/link';
-import Image from 'next/image';
+import { GrassWavesBackground } from '@/components/animations/GrassWaves'
+import { Navigation } from '@/components/ui/shared/Navigation'
+import { Footer } from '@/components/ui/shared/Footer'
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-red-100"> {/* Using a lighter red for the page background */}
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/" legacyBehavior>
-            <a>
-              <Image src="/logo.png" alt="Small Logo" width={120} height={40} />
-            </a>
-          </Link>
-          <nav className="space-x-4 font-pokemon">
-            {['Home', 'About', 'Games', 'Features', 'Contact'].map((item) => (
-              <Link key={item} href={item === 'Home' ? '/' : `/${item.toLowerCase()}`} legacyBehavior>
-                <a className={`text-gray-700 hover:text-pokemon-red ${item === 'About' ? 'text-pokemon-red font-bold' : ''}`}>
-                  {item}
-                </a>
-              </Link>
+    <main className="min-h-screen bg-gradient-to-b from-emerald-950 to-bg-darker">
+      <Navigation />
+      
+      {/* Hero Section - Nature Theme */}
+      <section className="relative min-h-screen overflow-hidden pt-20">
+        {/* Nature Animation Layers */}
+        <div className="absolute inset-0">
+          <GrassWavesBackground />
+          <div className="absolute inset-0 opacity-5">
+            {Array.from({ length: 30 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute text-4xl animate-float opacity-20"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 5}s`,
+                  animationDuration: `${3 + Math.random() * 4}s`
+                }}
+              >
+                🍃
+              </div>
             ))}
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-grow container mx-auto px-4 py-12">
-        <div className="bg-white/90 backdrop-blur-sm p-8 rounded-xl shadow-xl">
-          <h1 className="text-5xl font-pokemon text-center text-pokemon-red mb-8 [text-shadow:_2px_2px_0px_#A00000]">
-            About Our Pokémon Adventure
-          </h1>
-          
-          <div className="space-y-6 text-lg text-gray-800 leading-relaxed">
-            <p>
-              Welcome to Pokémon PvP Battle, the ultimate destination for trainers seeking thrilling Pokémon battles based on the classic FireRed mechanics! 
-              Our project was born from a passion for the Pokémon world and a desire to create a dynamic platform where trainers can test their skills,
-              strategize with their favorite Pokémon, and connect with a vibrant community.
-            </p>
-            <p>
-              This platform is a fan-created endeavor, built with modern web technologies to bring you a seamless and engaging battle experience. 
-              We've poured our hearts into recreating the strategic depth of Pokémon battles, allowing you to build your dream team,
-              select your moves carefully, and outwit your opponents.
-            </p>
-            
-            <div className="text-center my-10">
-              <Image src="/images/staff_placeholder.png" alt="Our Team - Pokémon Trainers" width={400} height={250} className="mx-auto rounded-lg shadow-md" />
-              <p className="text-sm text-gray-600 mt-2 italic">Meet the dedicated trainers behind this project!</p>
-            </div>
-
-            <h2 className="text-3xl font-pokemon text-center text-red-700 mt-12 mb-6 [text-shadow:_1px_1px_0px_#D00000]">
-              Our Mission
-            </h2>
-            <p>
-              Our mission is to provide a fun, fair, and competitive environment for Pokémon enthusiasts. We aim to:
-            </p>
-            <ul className="list-disc list-inside pl-4 space-y-2 text-pokemon-black">
-              <li><span className="font-bold text-fire">Deliver</span> an authentic Pokémon battle experience.</li>
-              <li><span className="font-bold text-water">Foster</span> a welcoming and active community of trainers.</li>
-              <li><span className="font-bold text-grass">Continuously improve</span> and expand the platform with new features and Pokémon.</li>
-              <li><span className="font-bold text-electric">Promote</span> strategic thinking and sportsmanship.</li>
-            </ul>
-
-            <p className="mt-8">
-              Whether you're a seasoned Pokémon master or a new trainer starting your journey, we're excited to have you here. 
-              Prepare your team, study your type matchups, and get ready to battle!
-            </p>
-            <p className="text-center font-pokemon text-xl text-pokemon-red mt-10">
-              Gotta Catch 'Em All... and Battle 'Em All!
-            </p>
           </div>
         </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="py-6 bg-gray-900 text-center text-gray-400 text-sm">
-        <p>Pokémon © Nintendo, Creatures Inc., GAME FREAK inc. This is a fan-created project for fun and learning.</p>
-        <div className="flex justify-center space-x-3 mt-3">
-            {/* Assuming you have these images in public/images/ or update paths */}
-            <Image src="/images/pokeball.jpg" alt="Pokeball" width={20} height={20} className="opacity-70 hover:opacity-100"/>
-            <Image src="/images/pokeball.jpg" alt="Pokeball" width={20} height={20} className="opacity-70 hover:opacity-100"/>
-            <Image src="/images/pokeball.jpg" alt="Pokeball" width={20} height={20} className="opacity-70 hover:opacity-100"/>
+        <div className="relative z-10 container mx-auto px-4 py-32">
+          <div className="max-w-4xl mx-auto">
+            {/* Organic Shape Header */}
+            <div className="relative inline-block mb-12">
+              <div 
+                className="absolute -inset-8 blur-3xl opacity-30 rounded-full"
+                style={{ background: 'var(--grass-glow)' }}
+              />
+              <h1 className="relative text-5xl md:text-7xl font-display font-black text-white">
+                OUR{' '}
+                <span style={{ color: 'var(--grass-accent)' }}>STORY</span>
+              </h1>
+            </div>
+
+            {/* Story Content */}
+            <div className="space-y-8 text-gray-200 font-body text-lg leading-relaxed">
+              <p className="animate-fade-in-up">
+                Pokemon PVP was born from a passion for Pokemon and modern web development. 
+                We wanted to create an experience that brings the excitement of Pokemon battles 
+                to the web with real-time multiplayer capabilities.
+              </p>
+              
+              <p className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                Built with cutting-edge technologies like Next.js 15, React 19, Socket.IO, and MongoDB, 
+                this project showcases what&apos;s possible when you combine classic Pokemon battle mechanics 
+                with modern web architecture.
+              </p>
+
+              <p className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                Our goal is to provide a free, open-source platform where trainers can battle with 
+                their favorite Pokemon, complete with authentic damage calculations, type effectiveness, 
+                and all the mechanics you know and love from the games.
+              </p>
+            </div>
+
+            {/* Animated Timeline */}
+            <div className="space-y-16 mt-20">
+              <TimelineItem
+                year="2024"
+                title="The Beginning"
+                description="Born from a passion for Pokemon and web development"
+                icon="🌱"
+                delay="0s"
+              />
+              <TimelineItem
+                year="Now"
+                title="The Journey"
+                description="Building the ultimate online Pokemon battle experience"
+                icon="🌿"
+                delay="0.2s"
+              />
+              <TimelineItem
+                year="Future"
+                title="The Vision"
+                description="Expanding to tournaments, rankings, and more Pokemon generations"
+                icon="🌳"
+                delay="0.4s"
+              />
+            </div>
+          </div>
         </div>
-      </footer>
+      </section>
+
+      {/* Technology Stack Section */}
+      <section className="py-32 bg-gradient-to-b from-bg-dark to-bg-darker relative">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl md:text-5xl font-display font-black text-center mb-20 text-white">
+            BUILT WITH{' '}
+            <span style={{ color: 'var(--grass-accent)' }}>MODERN TECH</span>
+          </h2>
+
+          {/* Tech Stack Cards */}
+          <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            <TechStackCard
+              name="Next.js 15"
+              icon="▲"
+              description="React framework for production"
+            />
+            <TechStackCard
+              name="Socket.IO"
+              icon="🔌"
+              description="Real-time bidirectional communication"
+            />
+            <TechStackCard
+              name="MongoDB"
+              icon="🍃"
+              description="NoSQL database for flexibility"
+            />
+            <TechStackCard
+              name="TypeScript"
+              icon="TS"
+              description="Type-safe development"
+            />
+          </div>
+
+          {/* Feature Highlights */}
+          <div className="mt-20 max-w-4xl mx-auto">
+            <h3 className="text-3xl font-display font-bold text-center mb-12 text-white">
+              Key Features
+            </h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <FeatureHighlight
+                icon="⚔️"
+                title="Real-time Battles"
+                description="Socket.IO powered instant multiplayer"
+              />
+              <FeatureHighlight
+                icon="🎯"
+                title="Authentic Mechanics"
+                description="Full damage calculation with type effectiveness"
+              />
+              <FeatureHighlight
+                icon="📊"
+                title="386 Pokemon"
+                description="Complete Gen 1-3 roster available"
+              />
+              <FeatureHighlight
+                icon="🌐"
+                title="Cross-platform"
+                description="Works on desktop, tablet, and mobile"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </main>
+  )
+}
+
+function TimelineItem({ 
+  year, 
+  title, 
+  description, 
+  icon,
+  delay 
+}: { 
+  year: string
+  title: string
+  description: string
+  icon: string
+  delay: string
+}) {
+  return (
+    <div 
+      className="relative flex gap-8 items-start animate-fade-in-up"
+      style={{ animationDelay: delay }}
+    >
+      <div className="flex-shrink-0">
+        <div 
+          className="w-20 h-20 rounded-full glass-card flex items-center justify-center text-4xl"
+          style={{ borderColor: 'var(--grass-accent)', borderWidth: '2px' }}
+        >
+          {icon}
+        </div>
+      </div>
+      <div className="flex-1">
+        <div 
+          className="text-sm font-display font-bold mb-2"
+          style={{ color: 'var(--grass-accent)' }}
+        >
+          {year}
+        </div>
+        <h3 className="text-2xl font-display font-bold text-white mb-2">
+          {title}
+        </h3>
+        <p className="text-gray-300 font-body">
+          {description}
+        </p>
+      </div>
     </div>
-  );
-} 
+  )
+}
+
+function TechStackCard({ name, icon, description }: { name: string; icon: string; description: string }) {
+  return (
+    <div className="glass-card p-6 rounded-2xl hover:scale-105 transition-all duration-300 text-center">
+      <div className="text-5xl mb-4">{icon}</div>
+      <h3 className="text-xl font-display font-bold text-white mb-2">
+        {name}
+      </h3>
+      <p className="text-gray-400 text-sm font-body">
+        {description}
+      </p>
+    </div>
+  )
+}
+
+function FeatureHighlight({ icon, title, description }: { icon: string; title: string; description: string }) {
+  return (
+    <div className="glass-card p-6 rounded-xl hover:scale-105 transition-transform">
+      <div className="flex items-start gap-4">
+        <div className="text-3xl">{icon}</div>
+        <div>
+          <h4 className="text-lg font-display font-bold text-white mb-1">
+            {title}
+          </h4>
+          <p className="text-gray-400 text-sm font-body">
+            {description}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
