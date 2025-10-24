@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import SoundToggle from '@/components/SoundToggle';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-green-400">
+    <div className="min-h-screen flex flex-col bg-green-400 page-transition">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -101,6 +102,9 @@ export default function LandingPage() {
             <Image src="/images/pokeball.jpg" alt="Pokeball" width={20} height={20} className="opacity-70 hover:opacity-100"/>
         </div>
       </footer>
+      
+      {/* Sound Toggle */}
+      <SoundToggle />
     </div>
   );
 }

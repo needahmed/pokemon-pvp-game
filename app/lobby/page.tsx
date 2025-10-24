@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import io, { Socket } from "socket.io-client"
 import Image from "next/image"
 import Link from "next/link"
+import SoundToggle from "@/components/SoundToggle"
 
 // Global socket connection
 // let socket: Socket | null = null; // Removed global socket
@@ -359,6 +360,9 @@ function LobbyContent() {
         <footer className="w-full py-8 text-center text-white/80 text-sm">
           <p>Pokémon © Nintendo, Creatures Inc., GAME FREAK inc. This is a fan-created project.</p>
         </footer>
+        
+        {/* Sound Toggle */}
+        <SoundToggle />
       </main>
     </div>
   );

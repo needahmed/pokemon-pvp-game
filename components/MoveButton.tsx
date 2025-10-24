@@ -66,14 +66,18 @@ export default function MoveButton({ move, onClick, disabled = false }: MoveButt
       className={`
         p-3 rounded-lg font-pokemon text-sm w-full
         transition-all duration-200 shadow-md
-        ${disabled ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 hover:shadow-lg hover:scale-105"}
+        ${disabled 
+          ? "opacity-50 cursor-not-allowed grayscale" 
+          : "hover:opacity-90 hover:shadow-xl hover:scale-110 hover:ring-2 hover:ring-white active:scale-95"}
         border-2 border-gray-800
       `}
       style={{ 
         backgroundColor,
         color: textColor,
         borderWidth: '2px',
+        minHeight: '44px', // Touch-friendly on mobile
       }}
+      aria-label={`Use ${moveName} move`}
     >
       <div className="flex flex-col items-center">
         <span className="text-center font-bold mb-1">{moveName}</span>

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
+import SoundToggle from "@/components/SoundToggle"
 
 export default function PlayPage() {
   const router = useRouter()
@@ -123,6 +124,9 @@ export default function PlayPage() {
             <p>Pokémon © Nintendo, Creatures Inc., GAME FREAK inc. This is a fan-created project.</p>
         </footer>
       </main>
+      
+      {/* Sound Toggle */}
+      <SoundToggle />
     </div>
   )
 } 

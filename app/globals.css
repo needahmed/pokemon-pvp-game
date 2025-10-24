@@ -15,6 +15,26 @@
   --pokemon-blue: #0000ff;
   --pokemon-black: #000000;
   --pokemon-white: #ffffff;
+  
+  /* Pokemon Type Colors */
+  --color-normal: #A8A878;
+  --color-fire: #F08030;
+  --color-water: #6890F0;
+  --color-grass: #78C850;
+  --color-electric: #F8D030;
+  --color-ice: #98D8D8;
+  --color-fighting: #C03028;
+  --color-poison: #A040A0;
+  --color-ground: #E0C068;
+  --color-flying: #A890F0;
+  --color-psychic: #F85888;
+  --color-bug: #A8B820;
+  --color-rock: #B8A038;
+  --color-ghost: #705898;
+  --color-dragon: #7038F8;
+  --color-dark: #705848;
+  --color-steel: #B8B8D0;
+  --color-fairy: #EE99AC;
 }
 
 body {
@@ -160,5 +180,168 @@ body {
   100% {
     transform: translateX(100%);
     opacity: 0;
+  }
+}
+
+/* Damage shake animation */
+.damage-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+  20%, 40%, 60%, 80% { transform: translateX(10px); }
+}
+
+/* Critical hit flash */
+.critical-flash {
+  animation: flash 0.6s ease-in-out;
+}
+
+@keyframes flash {
+  0%, 100% { filter: brightness(1); }
+  25%, 75% { filter: brightness(2) hue-rotate(20deg); }
+  50% { filter: brightness(2.5) hue-rotate(40deg); }
+}
+
+/* Floating damage numbers */
+.damage-number {
+  animation: float-up 1s ease-out forwards;
+  pointer-events: none;
+  position: absolute;
+  font-weight: bold;
+  font-size: 1.5rem;
+  z-index: 100;
+}
+
+@keyframes float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+}
+
+/* Pokeball loading animation */
+.pokeball-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Pulse animation for hover effects */
+.pulse-hover:hover {
+  animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Battle log message colors */
+.log-damage {
+  @apply text-red-600 font-semibold;
+}
+
+.log-heal {
+  @apply text-green-600 font-semibold;
+}
+
+.log-status {
+  @apply text-yellow-600 font-semibold;
+}
+
+.log-critical {
+  @apply text-orange-600 font-bold;
+}
+
+.log-super-effective {
+  @apply text-blue-600 font-semibold;
+}
+
+.log-not-effective {
+  @apply text-gray-500;
+}
+
+.log-fainted {
+  @apply text-red-700 font-bold;
+}
+
+/* Victory/Defeat animations */
+.victory-celebration {
+  animation: celebrate 1s ease-out;
+}
+
+@keyframes celebrate {
+  0% { transform: scale(0.5) rotate(-180deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(10deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Smooth page transitions */
+.page-transition {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Mobile Responsive Improvements */
+@media (max-width: 768px) {
+  .move-button {
+    @apply py-3 px-4 text-base;
+    min-height: 48px;
+  }
+  
+  .pokemon-card {
+    @apply text-xs;
+  }
+  
+  /* Make touch targets larger on mobile */
+  button, a, input, select, textarea {
+    min-height: 44px;
+  }
+  
+  /* Better mobile scrolling for battle log */
+  .battle-log-mobile {
+    max-height: 200px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Accessibility improvements */
+*:focus-visible {
+  @apply outline-2 outline-offset-2 outline-blue-500;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
