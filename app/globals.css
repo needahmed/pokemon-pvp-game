@@ -611,3 +611,219 @@ body {
 .bg-gradient-psychic {
   background: linear-gradient(135deg, #FF1493, #9400D3, #00FFFF);
 }
+
+/* ===== PORTAL ANIMATIONS (for /play page) ===== */
+@keyframes spin-portal {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-portal {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}
+
+@keyframes tilt {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(1deg); }
+  75% { transform: rotate(-1deg); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -30px) rotate(120deg); }
+  66% { transform: translate(-30px, 30px) rotate(240deg); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.animate-float-slow {
+  animation: float-slow 15s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin 4s linear infinite;
+}
+
+.animate-spin-reverse {
+  animation: spin-reverse 3s linear infinite;
+}
+
+@keyframes spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.animate-tilt {
+  animation: tilt 5s ease-in-out infinite;
+}
+
+.animate-pulse-portal {
+  animation: pulse-portal 3s ease-in-out infinite;
+}
+
+.animate-twinkle {
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+/* ===== ARENA ANIMATIONS (for /lobby page) ===== */
+@keyframes pulse-champion {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes shine {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes spotlight {
+  0%, 100% { opacity: 0.1; transform: translateY(0); }
+  50% { opacity: 0.3; transform: translateY(-20px); }
+}
+
+@keyframes spark-float {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-100px); }
+}
+
+.animate-pulse-champion {
+  animation: pulse-champion 3s ease-in-out infinite;
+}
+
+.animate-shine {
+  background-size: 200% auto;
+  animation: shine 3s linear infinite;
+}
+
+.animate-spotlight {
+  animation: spotlight 5s ease-in-out infinite;
+}
+
+.animate-spark-float {
+  animation: spark-float 4s ease-out infinite;
+}
+
+/* ===== LAB ANIMATIONS (for /team-selection page) ===== */
+@keyframes scan-right {
+  from { left: 0; }
+  to { left: 100%; }
+}
+
+@keyframes grid-flow {
+  from { transform: translateY(0); }
+  to { transform: translateY(50px); }
+}
+
+@keyframes float-data {
+  0% { opacity: 0.3; transform: translateY(0) translateX(0); }
+  50% { opacity: 1; transform: translateY(-20px) translateX(10px); }
+  100% { opacity: 0.3; transform: translateY(-40px) translateX(0); }
+}
+
+.animate-scan-right {
+  animation: scan-right 10s linear infinite;
+}
+
+.animate-float-data {
+  animation: float-data 6s ease-in-out infinite;
+}
+
+/* ===== SHARED UTILITY ANIMATIONS ===== */
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 255, 255, 0.8), transparent);
+}
+
+.scan-line-horizontal {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: linear-gradient(to right, transparent, rgba(0, 255, 255, 0.8), transparent);
+}
+
+.animate-scan-horizontal {
+  animation: scan-line 2s linear infinite;
+}
+
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* ===== GRADIENT BACKGROUNDS ===== */
+.bg-gradient-arena {
+  background: linear-gradient(135deg, #FFD700, #FF4500, #7038F8);
+}
+
+.bg-gradient-lab {
+  background: linear-gradient(135deg, #00FFFF, #00FF88, #1E90FF);
+}
+
+/* ===== PORTAL THEME COLORS ===== */
+.text-portal-primary { color: #FF1493; }
+.text-portal-secondary { color: #9400D3; }
+.text-portal-accent { color: #00FFFF; }
+.bg-portal-primary { background-color: #FF1493; }
+.bg-portal-secondary { background-color: #9400D3; }
+.bg-portal-accent { background-color: #00FFFF; }
+.border-portal-primary { border-color: #FF1493; }
+.border-portal-secondary { border-color: #9400D3; }
+.border-portal-accent { border-color: #00FFFF; }
+
+/* ===== ARENA THEME COLORS ===== */
+.text-arena-primary { color: #FFD700; }
+.text-arena-secondary { color: #FF4500; }
+.text-arena-accent { color: #4169E1; }
+.text-arena-dragon { color: #7038F8; }
+.bg-arena-primary { background-color: #FFD700; }
+.bg-arena-secondary { background-color: #FF4500; }
+.bg-arena-accent { background-color: #4169E1; }
+.bg-arena-dragon { background-color: #7038F8; }
+.border-arena-primary { border-color: #FFD700; }
+.border-arena-secondary { border-color: #FF4500; }
+.border-arena-accent { border-color: #4169E1; }
+.border-arena-dragon { border-color: #7038F8; }
+
+/* ===== LAB THEME COLORS ===== */
+.text-lab-primary { color: #00FFFF; }
+.text-lab-secondary { color: #00FF88; }
+.text-lab-accent { color: #FFD700; }
+.text-lab-tech { color: #1E90FF; }
+.bg-lab-primary { background-color: #00FFFF; }
+.bg-lab-secondary { background-color: #00FF88; }
+.bg-lab-accent { background-color: #FFD700; }
+.bg-lab-tech { background-color: #1E90FF; }
+.border-lab-primary { border-color: #00FFFF; }
+.border-lab-secondary { border-color: #00FF88; }
+.border-lab-accent { border-color: #FFD700; }
+.border-lab-tech { border-color: #1E90FF; }
+
+/* ===== FONT UTILITIES ===== */
+.font-tech {
+  font-family: 'Electrolize', 'Rajdhani', monospace;
+  letter-spacing: 0.05em;
+}
+
+.font-display {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+}
+
+.font-body {
+  font-family: 'Rajdhani', sans-serif;
+}
