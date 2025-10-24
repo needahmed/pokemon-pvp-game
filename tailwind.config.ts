@@ -91,6 +91,21 @@ const config: Config = {
       },
       fontFamily: {
         pokemon: ['"Pokemon GB"', "monospace"],
+        display: ['Orbitron', 'sans-serif'],
+        body: ['Rajdhani', 'sans-serif'],
+        tech: ['Electrolize', 'sans-serif'],
+      },
+      colors: {
+        'fire-primary': '#FF4500',
+        'fire-accent': '#FFD700',
+        'electric-primary': '#FFFF00',
+        'electric-accent': '#FFA500',
+        'grass-primary': '#00FF00',
+        'grass-accent': '#90EE90',
+        'water-primary': '#1E90FF',
+        'water-accent': '#87CEEB',
+        'bg-dark': '#0a0e27',
+        'bg-darker': '#050814',
       },
       keyframes: {
         "accordion-down": {
