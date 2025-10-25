@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { Swords, BookOpen, User, Zap, Target, Globe } from 'lucide-react'
 import { FireParticles } from '@/components/animations/FireParticles'
 import { Navigation } from '@/components/ui/shared/Navigation'
 import { Footer } from '@/components/ui/shared/Footer'
@@ -75,8 +76,9 @@ export default function HomePage() {
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
                 style={{ background: 'var(--fire-gradient)' }}
               />
-              <span className="relative z-10 text-white drop-shadow-glow">
-                ⚔️ BATTLE NOW
+              <span className="relative z-10 text-white drop-shadow-glow flex items-center justify-center gap-2">
+                <Swords className="w-6 h-6" />
+                BATTLE NOW
               </span>
             </Link>
 
@@ -85,15 +87,18 @@ export default function HomePage() {
               className="group relative px-12 py-6 font-display font-bold text-xl md:text-2xl glass-button rounded-2xl border-2 hover:border-white transition-all duration-300 hover:scale-105"
               style={{ borderColor: 'var(--fire-accent)' }}
             >
-              <span className="text-white">📖 LEARN MORE</span>
+              <span className="text-white flex items-center justify-center gap-2">
+                <BookOpen className="w-6 h-6" />
+                LEARN MORE
+              </span>
             </Link>
           </div>
 
           {/* Stats Counter */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mt-20 animate-fade-in-up-delayed-2 max-w-4xl mx-auto">
-            <StatCard value="10K+" label="BATTLES" icon="⚔️" />
-            <StatCard value="1.5K+" label="TRAINERS" icon="👤" />
-            <StatCard value="386" label="POKEMON" icon="⚡" />
+            <StatCard value="10K+" label="BATTLES" icon={<Swords className="w-10 h-10" />} />
+            <StatCard value="1.5K+" label="TRAINERS" icon={<User className="w-10 h-10" />} />
+            <StatCard value="386" label="POKEMON" icon={<Zap className="w-10 h-10" />} />
           </div>
         </div>
 
@@ -133,17 +138,17 @@ export default function HomePage() {
           {/* Feature Cards Grid */}
           <div className="grid md:grid-cols-3 gap-8">
             <FeatureCard
-              icon="⚡"
+              icon={<Zap className="w-16 h-16" />}
               title="REAL-TIME BATTLES"
               description="Fight in live 6v6 battles with instant turn-based action"
             />
             <FeatureCard
-              icon="🎯"
+              icon={<Target className="w-16 h-16" />}
               title="TYPE MECHANICS"
               description="Full type effectiveness, STAB, and critical hit calculations"
             />
             <FeatureCard
-              icon="🌐"
+              icon={<Globe className="w-16 h-16" />}
               title="ONLINE MULTIPLAYER"
               description="Create rooms, invite friends, battle trainers worldwide"
             />
@@ -157,10 +162,10 @@ export default function HomePage() {
   )
 }
 
-function StatCard({ value, label, icon }: { value: string; label: string; icon: string }) {
+function StatCard({ value, label, icon }: { value: string; label: string; icon: React.ReactNode }) {
   return (
     <div className="glass-card p-6 rounded-2xl hover:scale-105 transition-transform">
-      <div className="text-4xl mb-2">{icon}</div>
+      <div className="text-white mb-2 flex justify-center">{icon}</div>
       <div className="text-4xl md:text-5xl font-display font-black text-white mb-2">
         {value}
       </div>
@@ -169,10 +174,10 @@ function StatCard({ value, label, icon }: { value: string; label: string; icon: 
   )
 }
 
-function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
     <div className="glass-card p-8 rounded-2xl hover:scale-105 transition-all duration-300 group">
-      <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">
+      <div className="text-white mb-4 group-hover:scale-110 transition-transform flex justify-center">
         {icon}
       </div>
       <h3 className="text-2xl font-display font-bold text-white mb-4">

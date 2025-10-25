@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
+import { Zap, Home } from "lucide-react"
 import AudioPlayer from "@/components/AudioPlayer"
 import { ConfettiEffect } from "@/components/animations/ConfettiEffect"
 import { BattleParticles } from "@/components/animations/BattleParticles"
@@ -1215,7 +1216,7 @@ export default function Battle() {
                     <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-800"></div>
                     <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
                     <div className="relative px-8 py-4 flex items-center justify-center gap-3">
-                      <span className="text-2xl">⚡</span>
+                      <Zap className="w-6 h-6" />
                       <span className="font-display font-bold text-xl text-white">
                         REMATCH WITH NEW TEAM
                       </span>
@@ -1229,7 +1230,7 @@ export default function Battle() {
                     <div className="absolute inset-0 bg-gradient-to-r from-gray-600 to-gray-800"></div>
                     <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
                     <div className="relative px-8 py-4 flex items-center justify-center gap-3">
-                      <span className="text-2xl">🏠</span>
+                      <Home className="w-6 h-6" />
                       <span className="font-display font-bold text-xl text-white">
                         RETURN TO LOBBY
                       </span>

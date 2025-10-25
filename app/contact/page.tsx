@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import { User, Mail, FileText, Send } from 'lucide-react'
 import { WaterRipples } from '@/components/animations/WaterRipples'
 import { Navigation } from '@/components/ui/shared/Navigation'
 import { Footer } from '@/components/ui/shared/Footer'
@@ -39,22 +40,6 @@ export default function ContactPage() {
         <div className="absolute inset-0">
           <WaterRipples />
           <div className="absolute inset-0 bg-gradient-water animate-gradient-shift opacity-10" />
-          <div className="absolute inset-0 opacity-5">
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div
-                key={i}
-                className="absolute text-3xl animate-float opacity-30"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 5}s`,
-                  animationDuration: `${3 + Math.random() * 4}s`
-                }}
-              >
-                💧
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="relative z-10 container mx-auto px-4 py-32">
@@ -84,8 +69,9 @@ export default function ContactPage() {
               >
                 {/* Name Field */}
                 <div className="mb-6">
-                  <label htmlFor="name" className="block text-sm font-display font-bold text-white mb-2">
-                    👤 TRAINER NAME
+                  <label htmlFor="name" className="block text-sm font-display font-bold text-white mb-2 flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    TRAINER NAME
                   </label>
                   <input
                     type="text"
@@ -101,8 +87,9 @@ export default function ContactPage() {
 
                 {/* Email Field */}
                 <div className="mb-6">
-                  <label htmlFor="email" className="block text-sm font-display font-bold text-white mb-2">
-                    📧 EMAIL ADDRESS
+                  <label htmlFor="email" className="block text-sm font-display font-bold text-white mb-2 flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    EMAIL ADDRESS
                   </label>
                   <input
                     type="email"
@@ -118,8 +105,9 @@ export default function ContactPage() {
 
                 {/* Subject Field */}
                 <div className="mb-6">
-                  <label htmlFor="subject" className="block text-sm font-display font-bold text-white mb-2">
-                    📝 SUBJECT
+                  <label htmlFor="subject" className="block text-sm font-display font-bold text-white mb-2 flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    SUBJECT
                   </label>
                   <input
                     type="text"
@@ -135,8 +123,9 @@ export default function ContactPage() {
 
                 {/* Message Field */}
                 <div className="mb-8">
-                  <label htmlFor="message" className="block text-sm font-display font-bold text-white mb-2">
-                    💬 YOUR MESSAGE
+                  <label htmlFor="message" className="block text-sm font-display font-bold text-white mb-2 flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4" />
+                    YOUR MESSAGE
                   </label>
                   <textarea
                     id="message"
@@ -163,8 +152,9 @@ export default function ContactPage() {
                     className="absolute inset-0 opacity-0 group-hover/button:opacity-100 transition-opacity"
                     style={{ background: 'var(--water-accent)' }}
                   />
-                  <span className="relative z-10 block text-xl font-display font-bold text-white">
-                    SEND MESSAGE 💌
+                  <span className="relative z-10 flex items-center justify-center gap-2 text-xl font-display font-bold text-white">
+                    SEND MESSAGE
+                    <Send className="w-5 h-5" />
                   </span>
                 </button>
               </form>

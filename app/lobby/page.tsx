@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import io, { Socket } from "socket.io-client"
 import Image from "next/image"
 import Link from "next/link"
+import { Trophy, HelpCircle, Crown, Swords, AlertTriangle, Copy, Check, Clock } from "lucide-react"
 import SoundToggle from "@/components/SoundToggle"
 import { SpotlightBeams } from "@/components/animations/SpotlightBeams"
 import { ChampionSparks } from "@/components/animations/ChampionSparks"
@@ -249,7 +250,7 @@ function LobbyContent() {
               <div className="absolute inset-0 border-4 border-arena-primary border-t-transparent rounded-full animate-spin"></div>
               <div className="absolute inset-4 border-4 border-arena-accent border-b-transparent rounded-full animate-spin-reverse"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-4xl">🏟️</span>
+                <Trophy className="w-12 h-12 text-arena-primary" />
               </div>
             </div>
             <p className="font-display text-2xl text-arena-primary animate-pulse">Connecting to Arena...</p>
@@ -295,9 +296,19 @@ function LobbyContent() {
                   {/* Copy button */}
                   <button
                     onClick={copyRoomIdToClipboard}
-                    className="mt-4 px-6 py-2 bg-arena-primary/20 border border-arena-primary rounded-lg hover:bg-arena-primary/30 transition-all font-tech text-sm text-arena-primary hover:scale-105"
+                    className="mt-4 px-6 py-2 bg-arena-primary/20 border border-arena-primary rounded-lg hover:bg-arena-primary/30 transition-all font-tech text-sm text-arena-primary hover:scale-105 flex items-center gap-2 mx-auto"
                   >
-                    {copied ? '✓ COPIED!' : '📋 COPY CODE'}
+                    {copied ? (
+                      <>
+                        <Check className="w-4 h-4" />
+                        COPIED!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        COPY CODE
+                      </>
+                    )}
                   </button>
                 </div>
                 
@@ -362,7 +373,7 @@ function LobbyContent() {
                                 
                                 {player.isHost && (
                                   <div className="absolute -top-1 -right-1 w-8 h-8 bg-arena-primary rounded-full flex items-center justify-center border-2 border-gray-900 text-sm">
-                                    👑
+                                    <Crown className="w-5 h-5 text-white" />
                                   </div>
                                 )}
                               </div>
@@ -409,10 +420,20 @@ function LobbyContent() {
                                 : 'bg-gray-700/30 border-gray-600'
                             } transition-all`}>
                               <div className="flex items-center justify-between">
-                                <span className={`font-tech text-sm ${
+                                <span className={`font-tech text-sm flex items-center gap-2 ${
                                   player.ready ? 'text-green-400' : 'text-gray-400'
                                 }`}>
-                                  {player.ready ? '✓ READY TO BATTLE' : '⏳ PREPARING...'}
+                                  {player.ready ? (
+                                    <>
+                                      <Check className="w-4 h-4" />
+                                      READY TO BATTLE
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Clock className="w-4 h-4" />
+                                      PREPARING...
+                                    </>
+                                  )}
                                 </span>
                                 
                                 {player.ready && (
@@ -436,7 +457,7 @@ function LobbyContent() {
                         >
                           <div className="h-full flex flex-col items-center justify-center text-center py-8">
                             <div className="w-20 h-20 rounded-full border-4 border-dashed border-gray-700 flex items-center justify-center mb-4 animate-pulse">
-                              <span className="text-4xl opacity-30">❓</span>
+                              <HelpCircle className="w-10 h-10 text-gray-700" />
                             </div>
                             <p className="text-gray-500 font-tech text-sm">
                               WAITING FOR TRAINER...
@@ -455,8 +476,9 @@ function LobbyContent() {
                         {/* Error message */}
                         {error && !connecting && (
                           <div className="w-full max-w-md p-4 bg-red-500/20 border-2 border-red-500 rounded-lg animate-shake">
-                            <p className="text-red-300 text-center font-tech text-sm">
-                              ⚠️ {error}
+                            <p className="text-red-300 text-center font-tech text-sm flex items-center justify-center gap-2">
+                              <AlertTriangle className="w-4 h-4" />
+                              {error}
                             </p>
                           </div>
                         )}
@@ -471,11 +493,11 @@ function LobbyContent() {
                             <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
                             
                             <div className="relative px-8 py-6 flex items-center justify-center gap-3">
-                              <span className="text-3xl animate-bounce">⚔️</span>
+                              <Swords className="w-8 h-8 animate-bounce" />
                               <span className="font-display font-bold text-2xl text-white tracking-wide">
                                 I'M READY!
                               </span>
-                              <span className="text-3xl animate-bounce" style={{animationDelay: '0.2s'}}>⚔️</span>
+                              <Swords className="w-8 h-8 animate-bounce" style={{animationDelay: '0.2s'}} />
                             </div>
                           </button>
                         )}
@@ -491,11 +513,11 @@ function LobbyContent() {
                             <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
                             
                             <div className="relative px-8 py-6 flex items-center justify-center gap-3">
-                              <span className="text-3xl">🏆</span>
+                              <Trophy className="w-8 h-8" />
                               <span className="font-display font-bold text-2xl text-white tracking-wide">
                                 BEGIN BATTLE
                               </span>
-                              <span className="text-3xl">🏆</span>
+                              <Trophy className="w-8 h-8" />
                             </div>
                           </button>
                         )}

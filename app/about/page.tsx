@@ -1,5 +1,6 @@
 "use client"
 
+import { Sprout, Leaf, TreePine, Plug, Swords, Target, BarChart3, Globe } from 'lucide-react'
 import { GrassWavesBackground } from '@/components/animations/GrassWaves'
 import { Navigation } from '@/components/ui/shared/Navigation'
 import { Footer } from '@/components/ui/shared/Footer'
@@ -14,22 +15,6 @@ export default function AboutPage() {
         {/* Nature Animation Layers */}
         <div className="absolute inset-0">
           <GrassWavesBackground />
-          <div className="absolute inset-0 opacity-5">
-            {Array.from({ length: 30 }).map((_, i) => (
-              <div
-                key={i}
-                className="absolute text-4xl animate-float opacity-20"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 5}s`,
-                  animationDuration: `${3 + Math.random() * 4}s`
-                }}
-              >
-                🍃
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="relative z-10 container mx-auto px-4 py-32">
@@ -73,21 +58,21 @@ export default function AboutPage() {
                 year="2024"
                 title="The Beginning"
                 description="Born from a passion for Pokemon and web development"
-                icon="🌱"
+                icon={<Sprout className="w-10 h-10 text-white" />}
                 delay="0s"
               />
               <TimelineItem
                 year="Now"
                 title="The Journey"
                 description="Building the ultimate online Pokemon battle experience"
-                icon="🌿"
+                icon={<Leaf className="w-10 h-10 text-white" />}
                 delay="0.2s"
               />
               <TimelineItem
                 year="Future"
                 title="The Vision"
                 description="Expanding to tournaments, rankings, and more Pokemon generations"
-                icon="🌳"
+                icon={<TreePine className="w-10 h-10 text-white" />}
                 delay="0.4s"
               />
             </div>
@@ -112,12 +97,12 @@ export default function AboutPage() {
             />
             <TechStackCard
               name="Socket.IO"
-              icon="🔌"
+              icon={<Plug className="w-12 h-12" />}
               description="Real-time bidirectional communication"
             />
             <TechStackCard
               name="MongoDB"
-              icon="🍃"
+              icon={<Leaf className="w-12 h-12" />}
               description="NoSQL database for flexibility"
             />
             <TechStackCard
@@ -134,22 +119,22 @@ export default function AboutPage() {
             </h3>
             <div className="grid md:grid-cols-2 gap-6">
               <FeatureHighlight
-                icon="⚔️"
+                icon={<Swords className="w-8 h-8" />}
                 title="Real-time Battles"
                 description="Socket.IO powered instant multiplayer"
               />
               <FeatureHighlight
-                icon="🎯"
+                icon={<Target className="w-8 h-8" />}
                 title="Authentic Mechanics"
                 description="Full damage calculation with type effectiveness"
               />
               <FeatureHighlight
-                icon="📊"
+                icon={<BarChart3 className="w-8 h-8" />}
                 title="386 Pokemon"
                 description="Complete Gen 1-3 roster available"
               />
               <FeatureHighlight
-                icon="🌐"
+                icon={<Globe className="w-8 h-8" />}
                 title="Cross-platform"
                 description="Works on desktop, tablet, and mobile"
               />
@@ -173,7 +158,7 @@ function TimelineItem({
   year: string
   title: string
   description: string
-  icon: string
+  icon: React.ReactNode
   delay: string
 }) {
   return (
@@ -183,7 +168,7 @@ function TimelineItem({
     >
       <div className="flex-shrink-0">
         <div 
-          className="w-20 h-20 rounded-full glass-card flex items-center justify-center text-4xl"
+          className="w-20 h-20 rounded-full glass-card flex items-center justify-center"
           style={{ borderColor: 'var(--grass-accent)', borderWidth: '2px' }}
         >
           {icon}
@@ -207,10 +192,10 @@ function TimelineItem({
   )
 }
 
-function TechStackCard({ name, icon, description }: { name: string; icon: string; description: string }) {
+function TechStackCard({ name, icon, description }: { name: string; icon: React.ReactNode | string; description: string }) {
   return (
     <div className="glass-card p-6 rounded-2xl hover:scale-105 transition-all duration-300 text-center">
-      <div className="text-5xl mb-4">{icon}</div>
+      <div className="text-5xl mb-4 text-white flex justify-center">{icon}</div>
       <h3 className="text-xl font-display font-bold text-white mb-2">
         {name}
       </h3>
@@ -221,11 +206,11 @@ function TechStackCard({ name, icon, description }: { name: string; icon: string
   )
 }
 
-function FeatureHighlight({ icon, title, description }: { icon: string; title: string; description: string }) {
+function FeatureHighlight({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
     <div className="glass-card p-6 rounded-xl hover:scale-105 transition-transform">
       <div className="flex items-start gap-4">
-        <div className="text-3xl">{icon}</div>
+        <div className="text-white">{icon}</div>
         <div>
           <h4 className="text-lg font-display font-bold text-white mb-1">
             {title}
