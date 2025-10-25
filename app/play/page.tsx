@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
+import { Sparkles, Rocket, AlertTriangle, Compass } from "lucide-react"
 import SoundToggle from "@/components/SoundToggle"
 import { PortalVortex } from "@/components/animations/PortalVortex"
 import { FloatingPokemonSilhouettes } from "@/components/animations/FloatingPokemonSilhouettes"
@@ -90,8 +91,8 @@ export default function PlayPage() {
                 {/* Center portal icon */}
                 <div className="relative z-10 w-32 h-32 flex items-center justify-center">
                   <div className="w-20 h-20 bg-gradient-to-br from-portal-primary to-portal-accent rounded-full animate-pulse shadow-lg shadow-portal-primary/50">
-                    <div className="w-full h-full flex items-center justify-center text-4xl">
-                      🌀
+                    <div className="w-full h-full flex items-center justify-center text-white">
+                      <Compass className="w-10 h-10" />
                     </div>
                   </div>
                 </div>
@@ -170,11 +171,11 @@ export default function PlayPage() {
                 
                 {/* Button content */}
                 <div className="relative px-8 py-5 flex items-center justify-center gap-3">
-                  <span className="text-2xl">🌟</span>
+                  <Sparkles className="w-6 h-6" />
                   <span className="font-display font-bold text-xl text-white tracking-wide">
                     CREATE NEW PORTAL
                   </span>
-                  <span className="text-2xl">🌟</span>
+                  <Sparkles className="w-6 h-6" />
                 </div>
               </button>
 
@@ -190,11 +191,11 @@ export default function PlayPage() {
                 
                 {/* Button content */}
                 <div className="relative px-8 py-5 flex items-center justify-center gap-3">
-                  <span className="text-2xl">🚀</span>
+                  <Rocket className="w-6 h-6" />
                   <span className="font-display font-bold text-xl text-white tracking-wide">
                     ENTER PORTAL
                   </span>
-                  <span className="text-2xl">🚀</span>
+                  <Rocket className="w-6 h-6" />
                 </div>
               </button>
             </div>
@@ -202,8 +203,9 @@ export default function PlayPage() {
             {/* Error message with glitch effect */}
             {error && (
               <div className="mt-6 p-4 bg-red-500/20 border-2 border-red-500 rounded-lg backdrop-blur-sm animate-shake">
-                <p className="text-red-300 text-center font-tech text-sm">
-                  ⚠️ {error}
+                <p className="text-red-300 text-center font-tech text-sm flex items-center justify-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  {error}
                 </p>
               </div>
             )}

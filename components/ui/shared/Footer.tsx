@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { Github, Twitter, MessageCircle } from 'lucide-react'
+import { Github, Twitter, MessageCircle, Heart } from 'lucide-react'
 
 export function Footer() {
   return (
@@ -16,8 +16,8 @@ export function Footer() {
           {/* Brand Column */}
           <div className="col-span-2">
             <h3 className="text-2xl font-display font-black text-white mb-4">POKEMON PVP</h3>
-            <p className="text-gray-400 max-w-md mb-6">
-              The ultimate online Pokemon battle experience. Free, open-source, and built with ❤️ for the Pokemon community.
+            <p className="text-gray-400 max-w-md mb-6 flex items-center gap-1 flex-wrap">
+              The ultimate online Pokemon battle experience. Free, open-source, and built with <Heart className="w-4 h-4 text-red-500 fill-red-500 inline" /> for the Pokemon community.
             </p>
             <div className="flex gap-4">
               <SocialButton icon={<Github size={20} />} href="https://github.com" label="GitHub" />

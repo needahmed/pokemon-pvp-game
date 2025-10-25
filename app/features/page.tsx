@@ -1,5 +1,6 @@
 "use client"
 
+import { Zap, Sparkles, Target, RefreshCw } from 'lucide-react'
 import { LightningBolts } from '@/components/animations/LightningBolts'
 import { Navigation } from '@/components/ui/shared/Navigation'
 import { Footer } from '@/components/ui/shared/Footer'
@@ -85,25 +86,25 @@ export default function FeaturesPage() {
           {/* Mechanics Grid */}
           <div className="max-w-5xl mx-auto space-y-6">
             <MechanicCard
-              icon="💥"
+              icon={<Zap className="w-10 h-10" />}
               title="Type Effectiveness"
               description="Complete type chart with super effective (2x), not very effective (0.5x), and no effect (0x) calculations. Dual-type Pokemon combine effectiveness multipliers."
               gradient="electric"
             />
             <MechanicCard
-              icon="✨"
+              icon={<Sparkles className="w-10 h-10" />}
               title="STAB Bonus"
               description="Same-Type Attack Bonus (STAB) grants 1.5x damage when a Pokemon uses a move matching its type. Essential for maximizing damage output."
               gradient="fire"
             />
             <MechanicCard
-              icon="🎯"
+              icon={<Target className="w-10 h-10" />}
               title="Critical Hits"
               description="6.25% chance for critical hits that deal 1.5x damage. Ignores stat modifiers for more consistent damage during crucial moments."
               gradient="water"
             />
             <MechanicCard
-              icon="🔄"
+              icon={<RefreshCw className="w-10 h-10" />}
               title="Turn-Based System"
               description="Strategic turn-based combat where players choose moves or switch Pokemon. Turn order determined fairly with both players making simultaneous decisions."
               gradient="grass"
@@ -212,7 +213,7 @@ function MechanicCard({
   description, 
   gradient 
 }: { 
-  icon: string
+  icon: React.ReactNode
   title: string
   description: string
   gradient: string
@@ -220,7 +221,7 @@ function MechanicCard({
   return (
     <div className="glass-card p-6 rounded-xl hover:scale-105 transition-transform">
       <div className="flex items-start gap-4">
-        <div className="text-4xl flex-shrink-0">{icon}</div>
+        <div className="text-white flex-shrink-0">{icon}</div>
         <div>
           <h3 className="text-xl font-display font-bold text-white mb-2">
             {title}
